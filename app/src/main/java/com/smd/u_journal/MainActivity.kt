@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+Vapqu2-xetqin-jyjnej
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
