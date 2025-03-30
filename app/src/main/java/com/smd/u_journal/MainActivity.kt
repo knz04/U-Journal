@@ -3,6 +3,10 @@ package com.smd.u_journal
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
@@ -27,22 +31,35 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var isExpanded by remember { mutableStateOf(false) }
 
-                // Get current route
+                // Get current screen route
                 val currentRoute by navController.currentBackStackEntryAsState()
                 val isOnNewEntryScreen = currentRoute?.destination?.route == "new_entry"
+                if (!isOnNewEntryScreen) {
+                    isExpanded = false // Collapse TopBar when leaving NewEntryScreen
+                }
 
                 Scaffold(
-                    bottomBar = {
-                        if (!isOnNewEntryScreen) BottomNavBar(navController) // Hide on NewEntryScreen
-                    },
                     topBar = {
                         TopBar(isExpanded = isExpanded, onCloseClick = {
                             isExpanded = false
                             navController.popBackStack()
                         })
                     },
+                    bottomBar = {
+                        AnimatedVisibility(
+                            visible = !isOnNewEntryScreen, // Hide on new_entry
+                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
+                            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(500))
+                        ) {
+                            BottomNavBar(navController)
+                        }
+                    },
                     floatingActionButton = {
-                        if (!isOnNewEntryScreen) { // Hide FAB on NewEntryScreen
+                        AnimatedVisibility(
+                            visible = !isOnNewEntryScreen, // Hide on new_entry
+                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
+                            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(500))
+                        ) {
                             JournalFab(onClick = {
                                 isExpanded = true
                                 navController.navigate("new_entry")
