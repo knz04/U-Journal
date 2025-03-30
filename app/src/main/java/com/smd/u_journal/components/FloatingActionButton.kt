@@ -19,13 +19,14 @@ import com.smd.u_journal.ui.theme.Blue100
 fun JournalFab(onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .padding(bottom = 100.dp, end = 16.dp) // Adjusted to be above BottomNavBar
+             // Adjusted to be above BottomNavBar
             .fillMaxSize(),
         contentAlignment = Alignment.BottomEnd // Anchors to the bottom-right
     ) {
         IconButton(
             onClick = onClick,
             modifier = Modifier
+
                 .size(72.dp) // Circular button
                 .clip(CircleShape)
                 .background(Black) // Background color

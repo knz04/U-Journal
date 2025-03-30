@@ -25,7 +25,7 @@ fun MainScreen(navController: NavHostController) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            TopBar() // Always display the top bar
+
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -38,14 +38,9 @@ fun MainScreen(navController: NavHostController) {
                     composable(Screen.Date.route) { DateScreen() }
                     composable(Screen.Media.route) { MediaScreen() }
                     composable(Screen.Atlas.route) { AtlasScreen() }
+                    composable(Screen.NewEntry.route) { NewEntryScreen() }
                 }
             }
-
-            BottomNavBar(navController) // Always display the bottom nav bar
-        }
-        JournalFab {
-            // Handle button click
         }
     }
-
 }
