@@ -5,14 +5,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 @Composable
-fun NewLocationScreen() {
+fun AddLocationScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "New Location Screen", style = MaterialTheme.typography.headlineLarge)
+        Text(text = "Add Location Screen", style = MaterialTheme.typography.headlineLarge)
     }
 }

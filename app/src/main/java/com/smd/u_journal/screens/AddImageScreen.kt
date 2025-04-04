@@ -5,14 +5,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 @Composable
-fun NewImageScreen() {
+fun AddImageScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "New Image Screen", style = MaterialTheme.typography.headlineLarge)
+        Text(text = "Add Image Screen", style = MaterialTheme.typography.headlineLarge)
     }
 }

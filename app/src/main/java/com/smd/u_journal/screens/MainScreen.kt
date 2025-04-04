@@ -39,7 +39,8 @@ fun MainScreen(navController: NavHostController) {
                     composable(Screen.Media.route) { MediaScreen() }
                     composable(Screen.Atlas.route) { AtlasScreen() }
                     composable(Screen.NewEntry.route) { NewEntryScreen(navController = navController) }
-
+                    composable(Screen.AddImage.route) { AddImageScreen() }
+                    composable(Screen.AddLocation.route) { AddLocationScreen()}
                 }
             }
         }
