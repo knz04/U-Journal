@@ -45,3 +45,10 @@ fun MainScreen(navController: NavHostController) {
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    val navController = rememberNavController()
+    MainScreen(navController)
+}
