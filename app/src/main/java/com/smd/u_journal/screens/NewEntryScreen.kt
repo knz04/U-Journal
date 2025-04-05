@@ -37,7 +37,7 @@ fun NewEntryScreen(navController: NavController) {
         ) {
             if (text.isEmpty()) {
                 Text(
-                    text = "Write your journal entry here...",
+                    text = "Start writing or pay Premium to see Templates...",
                     style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                 )
             }
