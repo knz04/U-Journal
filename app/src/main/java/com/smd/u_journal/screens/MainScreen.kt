@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.smd.u_journal.components.BottomNavBar
+import com.smd.u_journal.components.CameraCapture
 import com.smd.u_journal.components.JournalFab
 import com.smd.u_journal.components.TopBar
 import com.smd.u_journal.navigation.Screen
@@ -41,6 +42,17 @@ fun MainScreen(navController: NavHostController) {
                     composable(Screen.NewEntry.route) { NewEntryScreen(navController = navController) }
                     composable(Screen.AddImage.route) { AddImageScreen() }
                     composable(Screen.AddLocation.route) { AddLocationScreen()}
+//                    composable("camera_capture") {
+//                        CameraCapture(
+//                            onImageCaptured = { uri ->
+//                                navController.popBackStack() // return after capture
+//                                // TODO: Handle URI, e.g., pass to ViewModel
+//                            },
+//                            onError = {
+//                                navController.popBackStack() // fallback on error
+//                            }
+//                        )
+//                    }
                 }
             }
         }
