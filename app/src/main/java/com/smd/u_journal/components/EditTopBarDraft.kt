@@ -19,7 +19,7 @@ import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 
 @Composable
-fun TopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: () -> Unit, onMenuClick: () -> Unit) {
+fun EditTopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: () -> Unit, onMenuClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,8 +57,8 @@ fun TopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: (
                 ) {
                     // Image Button
                     Icon(
-                        painter = painterResource(id = R.drawable.media),
-                        contentDescription = "Insert Image",
+                        painter = painterResource(id = R.drawable.ic_share),
+                        contentDescription = "share",
                         tint = Blue100,
                         modifier = Modifier
                             .size(24.dp)
@@ -67,7 +67,7 @@ fun TopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: (
 
                     // Favorite Button
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
+                        painter = painterResource(id = R.drawable.ic_star),
                         contentDescription = "Favorite",
                         tint = Blue100,
                         modifier = Modifier
@@ -77,8 +77,8 @@ fun TopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: (
 
                     // Menu Button
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_back),
-                        contentDescription = "Menu",
+                        painter = painterResource(id = R.drawable.ic_more),
+                        contentDescription = "more",
                         tint = Blue100,
                         modifier = Modifier
                             .size(24.dp)
@@ -92,9 +92,9 @@ fun TopBar(onBackClick: () -> Unit, onImageClick: () -> Unit, onFavoriteClick: (
 
 @Preview(showBackground = true, name = "TopBar Preview")
 @Composable
-fun TopBarPreview() {
+fun EditTopBarPreview() {
     Surface {
-        TopBar(
+        EditTopBar(
             onBackClick = {},
             onImageClick = {},
             onFavoriteClick = {},
