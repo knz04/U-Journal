@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smd.u_journal.R
+import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 import java.time.LocalDate
@@ -88,6 +90,12 @@ fun TopBar(isExpanded: Boolean, onCloseClick: () -> Unit) {
                         .align(Alignment.CenterStart)
                         .padding(start = 12.dp)
                         .clickable { onCloseClick() }
+                )
+            }  else {
+                Text(
+                    text = "U-Journal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Bg100
                 )
             }
         }
