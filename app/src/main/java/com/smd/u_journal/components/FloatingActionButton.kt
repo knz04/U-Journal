@@ -17,26 +17,19 @@ import com.smd.u_journal.ui.theme.Blue100
 
 @Composable
 fun JournalFab(onClick: () -> Unit) {
-    Box(
+    IconButton(
+        onClick = onClick,
         modifier = Modifier
-             // Adjusted to be above BottomNavBar
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd // Anchors to the bottom-right
+            .size(72.dp)
+            .clip(CircleShape)
+            .background(Black)
+            .padding(8.dp) // Optional spacing
     ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier
-
-                .size(72.dp) // Circular button
-                .clip(CircleShape)
-                .background(Black) // Background color
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.add), // Replace with your add icon
-                contentDescription = "New Journal Entry",
-                tint = Blue100
-            )
-        }
+        Icon(
+            painter = painterResource(id = R.drawable.add),
+            contentDescription = "New Journal Entry",
+            tint = Blue100
+        )
     }
 }
 
