@@ -1,5 +1,8 @@
 package com.smd.u_journal.components
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -7,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -14,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,6 +103,52 @@ fun BottomNavItem(
     alwaysShowText: Boolean = false,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showImageOptionDialog by remember { mutableStateOf(false) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            // Handle the selected image URI
+            // You can pass it to a ViewModel or save it
+        }
+    }
+
+    if (screen.route == Screen.AddImage.route && showImageOptionDialog) {
+        val openCamera = CameraCapture { bitmap ->
+            // Do something with the captured image
+            // For now just print or send to a ViewModel if needed
+        }
+        AlertDialog(
+            onDismissRequest = { showImageOptionDialog = false },
+            title = { Text("Select Image Source") },
+            confirmButton = {
+                Text(
+                    "Camera",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            showImageOptionDialog = false
+                            openCamera() // trigger camera
+                        }
+                )
+            },
+            dismissButton = {
+                Text(
+                    "Gallery",
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            showImageOptionDialog = false
+                            galleryLauncher.launch("image/*")
+                        }
+                )
+            }
+        )
+
+    }
+
     val targetBackgroundColor = when {
         alwaysShowText -> Color.White
         isSelected -> Bg100
@@ -122,7 +173,13 @@ fun BottomNavItem(
         modifier = Modifier
             .clip(RoundedCornerShape(50.dp))
             .background(animatedBackgroundColor)
-            .clickable(onClick = onClick)
+            .clickable {
+                if (screen.route == Screen.AddImage.route) {
+                    showImageOptionDialog = true
+                } else {
+                    onClick()
+                }
+            }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -155,6 +212,7 @@ fun BottomNavItem(
         }
     }
 }
+
 
 
 @Preview(showBackground = true)
