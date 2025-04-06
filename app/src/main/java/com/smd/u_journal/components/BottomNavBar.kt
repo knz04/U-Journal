@@ -33,6 +33,8 @@ import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 import com.smd.u_journal.viewmodel.BottomNavBarViewModel
+import com.smd.u_journal.components.EditButton
+import com.smd.u_journal.screens.EntryDetailScreen
 
 @Composable
 fun BottomNavBar(
@@ -47,6 +49,7 @@ fun BottomNavBar(
     val screens = when (navMode) {
         BottomNavBarViewModel.NavBarMode.MAIN -> listOf(Screen.Home, Screen.Date, Screen.Media, Screen.Atlas)
         BottomNavBarViewModel.NavBarMode.NEW_ENTRY -> listOf(Screen.AddImage, Screen.AddLocation)
+        BottomNavBarViewModel.NavBarMode.ENTRY_NAV -> listOf(Screen.EntryDetail) // will be handled separately
     }
 
     Box(
@@ -55,41 +58,108 @@ fun BottomNavBar(
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            modifier = if (navMode == BottomNavBarViewModel.NavBarMode.MAIN) {
-                Modifier
-                    .fillMaxWidth()
+        if (navMode == BottomNavBarViewModel.NavBarMode.ENTRY_NAV) {
+            Row(
+                modifier = Modifier
                     .clip(RoundedCornerShape(100.dp))
                     .background(Black)
                     .height(72.dp)
-                    .padding(horizontal = 16.dp)
-            } else {
-                Modifier
-                    .clip(RoundedCornerShape(100.dp))
-                    .background(Black)
-                    .height(72.dp)
-                    .padding(horizontal = 16.dp)
-            },
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            screens.forEach { screen ->
-                val isSelected = screen.route == currentRoute
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White)
+                        .clickable { /* Handle previous action */ }
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = com.smd.u_journal.R.drawable.ic_back),
+                        contentDescription = "Previous",
+                        tint = Black
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Previous",
+                        color = Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
 
-                BottomNavItem(
-                    screen = screen,
-                    isSelected = isSelected,
-                    alwaysShowText = navMode == BottomNavBarViewModel.NavBarMode.NEW_ENTRY,
-                    onClick = {
-                        if (!isSelected) {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White)
+                        .clickable { /* Handle next action */ }
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Next",
+                        color = Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(id = com.smd.u_journal.R.drawable.ic_next),
+                        contentDescription = "Next",
+                        tint = Black
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = (-16).dp) // adjust if needed
+            ) {
+                EditButton(
+                    onClick = { /* Handle edit click */ }
+                )
+            }
+        } else {
+            Row(
+                modifier = if (navMode == BottomNavBarViewModel.NavBarMode.MAIN) {
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(100.dp))
+                        .background(Black)
+                        .height(72.dp)
+                        .padding(horizontal = 16.dp)
+                } else {
+                    Modifier
+                        .clip(RoundedCornerShape(100.dp))
+                        .background(Black)
+                        .height(72.dp)
+                        .padding(horizontal = 16.dp)
+                },
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                screens.forEach { screen ->
+                    val isSelected = screen.route == currentRoute
+
+                    BottomNavItem(
+                        screen = screen,
+                        isSelected = isSelected,
+                        alwaysShowText = navMode == BottomNavBarViewModel.NavBarMode.NEW_ENTRY,
+                        onClick = {
+                            if (!isSelected) {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

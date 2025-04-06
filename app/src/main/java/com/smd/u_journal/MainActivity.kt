@@ -47,11 +47,16 @@ class MainActivity : ComponentActivity() {
                 val isExpanded by topBarViewModel.isExpanded.collectAsState()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 val isOnNewEntryScreen = currentRoute?.destination?.route == "new_entry"
+                val isOnEntryNav = currentRoute?.destination?.route == "entry_nav"
 
                 // Set BottomNavBar state
                 if (isOnNewEntryScreen) {
                     bottomNavBarViewModel.switchToNewEntry()
-                } else {
+                }
+                if (isOnEntryNav) {
+                    bottomNavBarViewModel.switchToEntryNav()
+                }
+                else {
                     bottomNavBarViewModel.switchToMain()
                     topBarViewModel.collapse()
                 }
