@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.theme.Bg100
@@ -32,7 +33,7 @@ import com.smd.u_journal.ui.theme.Blue200
 import com.smd.u_journal.ui.theme.Blue300
 
 @Composable
-fun MediaScreen() {
+fun MediaScreen(navController: NavController) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -54,21 +55,9 @@ fun MediaScreen() {
                         .height(150.dp)
                 ) {
                     Canvas(modifier = Modifier.matchParentSize()) {
-                        drawCircle(
-                            color = Blue100,
-                            radius = 500f,
-                            center = Offset(550f, 200f)
-                        )
-                        drawCircle(
-                            color = Blue200,
-                            radius = 700f,
-                            center = Offset(240f, 250f)
-                        )
-                        drawCircle(
-                            color = Blue300,
-                            radius = 700f,
-                            center = Offset(-50f, 250f)
-                        )
+                        drawCircle(color = Blue100, radius = 500f, center = Offset(550f, 200f))
+                        drawCircle(color = Blue200, radius = 700f, center = Offset(240f, 250f))
+                        drawCircle(color = Blue300, radius = 700f, center = Offset(-50f, 250f))
                     }
 
                     Column(
@@ -113,28 +102,29 @@ fun MediaScreen() {
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 0.dp, max = 10000.dp), // Let it be scrollable
+                    .heightIn(min = 0.dp, max = 10000.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                userScrollEnabled = false, // disables internal scrolling
-                content = {
-                    items(dummyEntries) { entry ->
-                        MediaCard(entry)
-                    }
+                userScrollEnabled = false
+            ) {
+                items(dummyEntries) { entry ->
+                    MediaCard(entry = entry, navController = navController)
                 }
-            )
+            }
         }
     }
 }
 
 @Composable
-fun MediaCard(entry: JournalEntry) {
+fun MediaCard(entry: JournalEntry, navController: NavController) {
     Card(
         modifier = Modifier
             .aspectRatio(1f)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .clickable { /* Add onClick if needed */ },
+            .clickable {
+                navController.navigate("entry_nav/${entry.date}")
+            },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -144,29 +134,15 @@ fun MediaCard(entry: JournalEntry) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .background(
-//                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
-//                    )
-//                    .align(Alignment.BottomStart)
-//                    .padding(8.dp)
-//            ) {
-//                Text(
-//                    text = entry.title,
-//                    style = MaterialTheme.typography.bodySmall,
-//                    color = MaterialTheme.colorScheme.onSurface
-//                )
-//            }
         }
     }
 }
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun MediaScreenPreview() {
-    MediaScreen()
-}
+
+//@Preview(showBackground = true)
+//@Composable
+//fun MediaScreenPreview() {
+//    MediaScreen()
+//}
