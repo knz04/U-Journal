@@ -52,7 +52,7 @@ private const val VALID_PASSWORD = "titit"
 
 
 @Composable
-fun OnboardingScreen(navController: NavHostController = rememberNavController()) {
+fun OnboardingScreen(navController: NavHostController = rememberNavController(), onLoginSuccess: () -> Unit = {}) {
     var isLogin by remember { mutableStateOf(true) }
 
     var portraitBackground = painterResource(R.drawable.background)
@@ -123,16 +123,16 @@ fun OnboardingScreen(navController: NavHostController = rememberNavController())
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLogin) {
-                AuthLogin(navController)  // Pass navController to AuthLogin
+                AuthLogin(onLoginSuccess)  // Pass the callback
             } else {
-                AuthRegister(navController) // Pass navController to AuthRegister
+                AuthRegister(onLoginSuccess)
             }
         }
     }
 }
 
 @Composable
-fun AuthLogin(navController: NavHostController) {
+fun AuthLogin(onLoginSuccess: () -> Unit) {
     var rememberMe by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -258,9 +258,7 @@ fun AuthLogin(navController: NavHostController) {
                     }
                 } else {
                     failedAttempts = 0
-                    navController.navigate("home") {
-                        popUpTo("onboarding") { inclusive = true }
-                    }
+                    onLoginSuccess()
                 }
             },
             colors = ButtonDefaults.buttonColors(Color(0xFF1F1F1F))
@@ -363,7 +361,7 @@ fun AuthLogin(navController: NavHostController) {
 }
 
 @Composable
-fun AuthRegister(navController: NavHostController) {
+fun AuthRegister(onLoginSuccess: () -> Unit) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -451,13 +449,11 @@ fun AuthRegister(navController: NavHostController) {
                 .fillMaxWidth()
                 .height(48.dp),
             onClick = {
-                if (fullName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                if (!fullName.isNotEmpty() && !email.isNotEmpty() && !password.isNotEmpty()) {
                     // In a real app, you would register the user here
-                    navController.navigate("home") {
-                        popUpTo("onboarding") { inclusive = true }
-                    }
-                } else {
                     registrationError = true
+                } else {
+                    onLoginSuccess()
                 }
             },
             colors = ButtonDefaults.buttonColors(Color(0xFF1F1F1F))
