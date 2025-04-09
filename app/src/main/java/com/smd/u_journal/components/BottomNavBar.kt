@@ -62,9 +62,11 @@ fun BottomNavBar(
         if (navMode == BottomNavBarViewModel.NavBarMode.ENTRY_NAV) {
             Row(
                 modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(100.dp))
                     .background(Black)
-                    .padding(8.dp)
-                    .clip(RoundedCornerShape(100.dp)),
+                    .height(72.dp)
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {

@@ -34,6 +34,8 @@ import android.Manifest
 import com.smd.u_journal.components.EditButton
 import com.smd.u_journal.components.EditTopBar
 import com.smd.u_journal.navigation.Screen
+import com.smd.u_journal.viewmodel.FabState
+import com.smd.u_journal.viewmodel.FloatingActionButtonViewModel
 import com.smd.u_journal.viewmodel.TopBarState
 
 
@@ -47,8 +49,10 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val topBarViewModel: TopBarViewModel = viewModel()
                 val bottomNavBarViewModel: BottomNavBarViewModel = viewModel()
+                val fabViewModel : FloatingActionButtonViewModel = viewModel()
 
                 val topBarState by topBarViewModel.topBarState.collectAsState()
+                val fabState by fabViewModel.fabState.collectAsState()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 val route = currentRoute?.destination?.route.orEmpty()
 
@@ -56,16 +60,19 @@ class MainActivity : ComponentActivity() {
                     route == Screen.NewEntry.route -> {
                         bottomNavBarViewModel.switchToNewEntry()
                         topBarViewModel.setState(TopBarState.NEW_ENTRY)
+                        fabViewModel.setFabState(FabState.ADD)
                     }
 
                     route.startsWith("entry_nav") -> {
                         bottomNavBarViewModel.switchToEntryNav()
                         topBarViewModel.setState(TopBarState.ENTRY_NAV)
+                        fabViewModel.setFabState(FabState.EDIT)
                     }
 
                     else -> {
                         bottomNavBarViewModel.switchToMain()
                         topBarViewModel.setState(TopBarState.COLLAPSED)
+                        fabViewModel.setFabState(FabState.ADD)
                     }
                 }
 
@@ -77,12 +84,10 @@ class MainActivity : ComponentActivity() {
                                 topBarViewModel.setState(TopBarState.COLLAPSED)
                                 navController.popBackStack()
                             },
-                            onBackClick = {
-                                navController.popBackStack()
-                            },
-                            onImageClick = { /* TODO: Implement */ },
-                            onFavoriteClick = { /* TODO: Implement */ },
-                            onMenuClick = { /* TODO: Implement */ }
+                            onBackClick = { navController.popBackStack() },
+                            onImageClick = { /* TODO */ },
+                            onFavoriteClick = { /* TODO */ },
+                            onMenuClick = { /* TODO */ }
                         )
                     },
                     bottomBar = {
@@ -100,16 +105,16 @@ class MainActivity : ComponentActivity() {
                             enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
                             exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
                         ) {
-                            if (route.startsWith("entry_nav")) {
-                                EditButton(onClick = {
-                                    // Handle edit mode action
-                                })
-                            } else {
-                                JournalFab(onClick = {
+                            JournalFab(
+                                viewModel = fabViewModel,
+                                onAddClick = {
                                     topBarViewModel.setState(TopBarState.EXPANDED)
                                     navController.navigate(Screen.NewEntry.route)
-                                })
-                            }
+                                },
+                                onEditClick = {
+                                    // Handle edit click
+                                }
+                            )
                         }
                     }
                 ) { paddingValues ->
