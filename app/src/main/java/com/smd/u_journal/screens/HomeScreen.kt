@@ -27,13 +27,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavController
 import com.smd.u_journal.R
 import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.components.JournalEntryCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
 
     LazyColumn(
@@ -187,15 +188,15 @@ fun HomeScreen() {
                 journalEntry = entry,
                 dateLabel = "Recently Opened",
                 onClick = {
-                    // TODO: navigate to detail screen if needed
+                    navController.navigate("entry_nav/${entry.date}")
                 }
             )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun HomeScreenPreview() {
+//    HomeScreen()
+//}

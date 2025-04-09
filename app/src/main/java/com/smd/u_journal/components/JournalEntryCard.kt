@@ -72,7 +72,7 @@ fun JournalEntryCard(
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (journalEntry.content.length > 24) journalEntry.title.take(30) + "..." else journalEntry.title,                    style = MaterialTheme.typography.bodySmall,
+                    if (journalEntry.content.length > 24) journalEntry.content.take(30) + "..." else journalEntry.content,                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Normal,
                     color = textColorSecondary
                 )
