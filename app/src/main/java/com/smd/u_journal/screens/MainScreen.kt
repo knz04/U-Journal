@@ -42,7 +42,9 @@ fun MainScreen(navController: NavHostController, selectedEntryViewModel: Selecte
                     composable(Screen.Home.route) { HomeScreen(navController = navController) }
                     composable(Screen.Date.route) { DateScreen(navController = navController) }
                     composable(Screen.Media.route) { MediaScreen(navController = navController) }
-                    composable(Screen.Atlas.route) { AtlasScreen() }
+                    composable(Screen.Atlas.route) {
+                        AtlasScreen(navController = navController)
+                    }
                     composable(Screen.NewEntry.route) { NewEntryScreen(navController = navController) }
                     composable(Screen.AddImage.route) { AddImageScreen() }
                     composable(Screen.AddLocation.route) { AddLocationScreen()}
