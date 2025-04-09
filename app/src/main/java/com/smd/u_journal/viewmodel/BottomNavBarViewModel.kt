@@ -8,7 +8,8 @@ class BottomNavBarViewModel : ViewModel() {
 
     enum class NavBarMode {
         MAIN,
-        NEW_ENTRY
+        NEW_ENTRY,
+        ENTRY_NAV
     }
 
     private val _navBarMode = MutableStateFlow(NavBarMode.MAIN)
@@ -21,4 +22,10 @@ class BottomNavBarViewModel : ViewModel() {
     fun switchToNewEntry() {
         _navBarMode.value = NavBarMode.NEW_ENTRY
     }
+
+    fun switchToEntryNav() {
+        _navBarMode.value = NavBarMode.ENTRY_NAV
+    }
 }
+
+

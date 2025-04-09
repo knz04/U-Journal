@@ -31,6 +31,10 @@ import com.smd.u_journal.ui.theme.UJournalTheme
 import com.smd.u_journal.viewmodel.BottomNavBarViewModel
 import com.smd.u_journal.viewmodel.TopBarViewModel
 import android.Manifest
+import com.smd.u_journal.components.EditButton
+import com.smd.u_journal.components.EditTopBar
+import com.smd.u_journal.navigation.Screen
+import com.smd.u_journal.viewmodel.TopBarState
 
 
 class MainActivity : ComponentActivity() {
@@ -44,26 +48,41 @@ class MainActivity : ComponentActivity() {
                 val topBarViewModel: TopBarViewModel = viewModel()
                 val bottomNavBarViewModel: BottomNavBarViewModel = viewModel()
 
-                val isExpanded by topBarViewModel.isExpanded.collectAsState()
+                val topBarState by topBarViewModel.topBarState.collectAsState()
                 val currentRoute by navController.currentBackStackEntryAsState()
-                val isOnNewEntryScreen = currentRoute?.destination?.route == "new_entry"
+                val route = currentRoute?.destination?.route.orEmpty()
 
-                // Set BottomNavBar state
-                if (isOnNewEntryScreen) {
-                    bottomNavBarViewModel.switchToNewEntry()
-                } else {
-                    bottomNavBarViewModel.switchToMain()
-                    topBarViewModel.collapse()
+                when {
+                    route == Screen.NewEntry.route -> {
+                        bottomNavBarViewModel.switchToNewEntry()
+                        topBarViewModel.setState(TopBarState.NEW_ENTRY)
+                    }
+
+                    route.startsWith("entry_nav") -> {
+                        bottomNavBarViewModel.switchToEntryNav()
+                        topBarViewModel.setState(TopBarState.ENTRY_NAV)
+                    }
+
+                    else -> {
+                        bottomNavBarViewModel.switchToMain()
+                        topBarViewModel.setState(TopBarState.COLLAPSED)
+                    }
                 }
 
                 Scaffold(
                     topBar = {
                         TopBar(
-                            isExpanded = isExpanded,
+                            state = topBarState,
                             onCloseClick = {
-                                topBarViewModel.collapse()
+                                topBarViewModel.setState(TopBarState.COLLAPSED)
                                 navController.popBackStack()
-                            }
+                            },
+                            onBackClick = {
+                                navController.popBackStack()
+                            },
+                            onImageClick = { /* TODO: Implement */ },
+                            onFavoriteClick = { /* TODO: Implement */ },
+                            onMenuClick = { /* TODO: Implement */ }
                         )
                     },
                     bottomBar = {
@@ -77,14 +96,20 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         AnimatedVisibility(
-                            visible = !isOnNewEntryScreen,
+                            visible = route != Screen.NewEntry.route,
                             enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
                             exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
                         ) {
-                            JournalFab(onClick = {
-                                topBarViewModel.expand()
-                                navController.navigate("new_entry")
-                            })
+                            if (route.startsWith("entry_nav")) {
+                                EditButton(onClick = {
+                                    // Handle edit mode action
+                                })
+                            } else {
+                                JournalFab(onClick = {
+                                    topBarViewModel.setState(TopBarState.EXPANDED)
+                                    navController.navigate(Screen.NewEntry.route)
+                                })
+                            }
                         }
                     }
                 ) { paddingValues ->
@@ -106,7 +131,6 @@ fun RequestPermissions() {
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        // Handle permission results
         val allGranted = permissions.entries.all { it.value }
         if (!allGranted) {
             Toast.makeText(context, "Permissions are required to use this feature", Toast.LENGTH_SHORT).show()

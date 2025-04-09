@@ -4,19 +4,34 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class TopBarViewModel : ViewModel() {
-    private val _isExpanded = MutableStateFlow(false)
-    val isExpanded: StateFlow<Boolean> = _isExpanded
+enum class TopBarState {
+    COLLAPSED,
+    EXPANDED,
+    NEW_ENTRY,
+    ENTRY_NAV
+}
 
-    fun expand() {
-        _isExpanded.value = true
+class TopBarViewModel : ViewModel() {
+    private val _topBarState = MutableStateFlow(TopBarState.COLLAPSED)
+    val topBarState: StateFlow<TopBarState> = _topBarState
+
+    fun setState(state: TopBarState) {
+        _topBarState.value = state
     }
 
     fun collapse() {
-        _isExpanded.value = false
+        _topBarState.value = TopBarState.COLLAPSED
     }
 
-    fun toggle() {
-        _isExpanded.value = !_isExpanded.value
+    fun expand() {
+        _topBarState.value = TopBarState.EXPANDED
+    }
+
+    fun entryScreen() {
+        _topBarState.value = TopBarState.NEW_ENTRY
+    }
+
+    fun editScreen() {
+        _topBarState.value = TopBarState.ENTRY_NAV
     }
 }
