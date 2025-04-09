@@ -21,11 +21,11 @@ import com.smd.u_journal.components.TopBar
 import com.smd.u_journal.navigation.Screen
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
-
+import com.smd.u_journal.viewmodel.SelectedEntryViewModel
 
 
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, selectedEntryViewModel: SelectedEntryViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -51,7 +51,17 @@ fun MainScreen(navController: NavHostController) {
                         arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
                     ) { backStackEntry ->
                         val selectedDate = backStackEntry.arguments?.getString("selectedDate") ?: ""
-                        EntryDetailScreen(selectedDate = selectedDate)
+                        EntryDetailScreen(
+                            selectedDate = selectedDate,
+                            selectedEntryViewModel = selectedEntryViewModel
+                        )
+                    }
+                    composable(
+                        route = Screen.Edit.route + "/{selectedDate}",
+                        arguments = listOf(navArgument("selectedDate") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val selectedDate = backStackEntry.arguments?.getString("selectedDate") ?: ""
+                        EditScreen(selectedDate = selectedDate)
                     }
 //                    composable("camera_capture") {
 //                        CameraCapture(
@@ -71,9 +81,9 @@ fun MainScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    val navController = rememberNavController()
-    MainScreen(navController)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MainScreenPreview() {
+//    val navController = rememberNavController()
+//    MainScreen(navController)
+//}

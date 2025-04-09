@@ -45,7 +45,8 @@ fun TopBar(
     onBackClick: () -> Unit = {},
     onImageClick: () -> Unit = {},
     onFavoriteClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    onMenuClick: () -> Unit = {},
+    onDelete: () -> Unit = {},
 ) {
     val isCollapsed = state == TopBarState.COLLAPSED
 
@@ -114,8 +115,49 @@ fun TopBar(
                     }
                 }
             }
+        } else if (state == TopBarState.EDIT_ENTRY) {
+            val date = remember {
+                val today = LocalDate.now()
+                val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+                today.format(formatter)
+            }
+            Box(
+                modifier = Modifier
+                    .width(barWidth)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Black)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription = "Back",
+                        tint = Blue100,
+                        modifier = Modifier.clickable { onBackClick() }
+                    )
+                    Text(text = date, color = Blue100, fontSize = 14.sp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.delete),
+                            contentDescription = "More",
+                            tint = Blue100,
+                            modifier = Modifier.clickable { onDelete() }
+                        )
+                    }
+                }
+            }
 
-        } else {
+        }
+        else {
             Box(
                 modifier = Modifier
                     .width(barWidth)
@@ -143,18 +185,7 @@ fun TopBar(
                         )
                     }
 
-                    TopBarState.NEW_ENTRY -> {
-                        Text(text = "New Entry", color = Blue100, fontSize = 14.sp)
-                        Icon(
-                            painter = painterResource(id = R.drawable.close),
-                            contentDescription = "Close",
-                            tint = Blue100,
-                            modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(start = 12.dp)
-                                .clickable { onCloseClick() }
-                        )
-                    }
+
 
                     TopBarState.COLLAPSED -> {
                         Text(

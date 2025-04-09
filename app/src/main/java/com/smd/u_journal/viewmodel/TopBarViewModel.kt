@@ -8,7 +8,8 @@ enum class TopBarState {
     COLLAPSED,
     EXPANDED,
     NEW_ENTRY,
-    ENTRY_NAV
+    ENTRY_NAV,
+    EDIT_ENTRY
 }
 
 class TopBarViewModel : ViewModel() {
@@ -31,7 +32,11 @@ class TopBarViewModel : ViewModel() {
         _topBarState.value = TopBarState.NEW_ENTRY
     }
 
-    fun editScreen() {
+    fun detailScreen() {
         _topBarState.value = TopBarState.ENTRY_NAV
+    }
+
+    fun editScreen() {
+        _topBarState.value = TopBarState.EDIT_ENTRY
     }
 }

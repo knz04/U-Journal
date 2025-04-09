@@ -31,11 +31,16 @@ import com.smd.u_journal.ui.theme.UJournalTheme
 import com.smd.u_journal.viewmodel.BottomNavBarViewModel
 import com.smd.u_journal.viewmodel.TopBarViewModel
 import android.Manifest
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.smd.u_journal.components.EditButton
 import com.smd.u_journal.components.EditTopBar
 import com.smd.u_journal.navigation.Screen
+import com.smd.u_journal.screens.OnboardingScreen
 import com.smd.u_journal.viewmodel.FabState
 import com.smd.u_journal.viewmodel.FloatingActionButtonViewModel
+import com.smd.u_journal.viewmodel.SelectedEntryViewModel
 import com.smd.u_journal.viewmodel.TopBarState
 
 
@@ -49,80 +54,102 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val topBarViewModel: TopBarViewModel = viewModel()
                 val bottomNavBarViewModel: BottomNavBarViewModel = viewModel()
-                val fabViewModel : FloatingActionButtonViewModel = viewModel()
+                val fabViewModel: FloatingActionButtonViewModel = viewModel()
+                val context = LocalContext.current
+                val selectedEntryViewModel: SelectedEntryViewModel = viewModel()
+                val selectedDate by selectedEntryViewModel.selectedDate.collectAsState()
 
-                val topBarState by topBarViewModel.topBarState.collectAsState()
-                val fabState by fabViewModel.fabState.collectAsState()
-                val currentRoute by navController.currentBackStackEntryAsState()
-                val route = currentRoute?.destination?.route.orEmpty()
+                var isLoggedIn by rememberSaveable { mutableStateOf(false) }
 
-                when {
-                    route == Screen.NewEntry.route -> {
-                        bottomNavBarViewModel.switchToNewEntry()
-                        topBarViewModel.setState(TopBarState.NEW_ENTRY)
-                        fabViewModel.setFabState(FabState.ADD)
-                    }
+                if (!isLoggedIn) {
+                    OnboardingScreen(
+                        navController = navController,
+                        onLoginSuccess = { isLoggedIn = true }
+                    )
+                } else {
+                    val topBarState by topBarViewModel.topBarState.collectAsState()
+                    val fabState by fabViewModel.fabState.collectAsState()
+                    val currentRoute by navController.currentBackStackEntryAsState()
+                    val route = currentRoute?.destination?.route.orEmpty()
 
-                    route.startsWith("entry_nav") -> {
-                        bottomNavBarViewModel.switchToEntryNav()
-                        topBarViewModel.setState(TopBarState.ENTRY_NAV)
-                        fabViewModel.setFabState(FabState.EDIT)
-                    }
-
-                    else -> {
-                        bottomNavBarViewModel.switchToMain()
-                        topBarViewModel.setState(TopBarState.COLLAPSED)
-                        fabViewModel.setFabState(FabState.ADD)
-                    }
-                }
-
-                Scaffold(
-                    topBar = {
-                        TopBar(
-                            state = topBarState,
-                            onCloseClick = {
-                                topBarViewModel.setState(TopBarState.COLLAPSED)
-                                navController.popBackStack()
-                            },
-                            onBackClick = { navController.popBackStack() },
-                            onImageClick = { /* TODO */ },
-                            onFavoriteClick = { /* TODO */ },
-                            onMenuClick = { /* TODO */ }
-                        )
-                    },
-                    bottomBar = {
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
-                            exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(500))
-                        ) {
-                            BottomNavBar(navController = navController, viewModel = bottomNavBarViewModel)
+                    when {
+                        route == Screen.NewEntry.route -> {
+                            bottomNavBarViewModel.switchToNewEntry()
+                            fabViewModel.setFabState(FabState.ADD)
                         }
-                    },
-                    floatingActionButton = {
-                        AnimatedVisibility(
-                            visible = route != Screen.NewEntry.route,
-                            enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
-                            exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
-                        ) {
-                            JournalFab(
-                                viewModel = fabViewModel,
-                                onAddClick = {
-                                    topBarViewModel.setState(TopBarState.EXPANDED)
-                                    navController.navigate(Screen.NewEntry.route)
+
+                        route.startsWith("entry_nav") -> {
+                            bottomNavBarViewModel.switchToEntryNav()
+                            topBarViewModel.setState(TopBarState.ENTRY_NAV)
+                            fabViewModel.setFabState(FabState.EDIT)
+                        }
+
+                        route.startsWith("edit_nav") -> {
+                            bottomNavBarViewModel.switchToNewEntry()
+                            topBarViewModel.setState(TopBarState.EDIT_ENTRY)
+                            fabViewModel.setFabState(FabState.EDIT)
+                        }
+
+                        else -> {
+                            bottomNavBarViewModel.switchToMain()
+                            topBarViewModel.setState(TopBarState.COLLAPSED)
+                            fabViewModel.setFabState(FabState.ADD)
+                        }
+                    }
+
+                    Scaffold(
+                        topBar = {
+                            TopBar(
+                                state = topBarState,
+                                onCloseClick = {
+                                    topBarViewModel.setState(TopBarState.COLLAPSED)
+                                    navController.popBackStack()
                                 },
-                                onEditClick = {
-                                    // Handle edit click
-                                }
+                                onBackClick = { navController.popBackStack() },
+                                onImageClick = { /* TODO */ },
+                                onFavoriteClick = { /* TODO */ },
+                                onMenuClick = { /* TODO */ },
+                            )
+                        },
+                        bottomBar = {
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
+                                exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(500))
+                            ) {
+                                BottomNavBar(navController = navController, viewModel = bottomNavBarViewModel)
+                            }
+                        },
+                        floatingActionButton = {
+                            AnimatedVisibility(
+                                visible = route != Screen.NewEntry.route && !route.startsWith("edit_nav"),
+                                enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
+                                exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
+                            ) {
+                                JournalFab(
+                                    viewModel = fabViewModel,
+                                    onAddClick = {
+                                        topBarViewModel.setState(TopBarState.EXPANDED)
+                                        navController.navigate(Screen.NewEntry.route)
+                                    },
+                                    onEditClick = {
+                                        selectedDate?.let {
+                                            navController.navigate(Screen.Edit.withArgs(it))
+                                        } ?: Toast.makeText(context, "No entry selected to edit", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                        }
+                    ) { paddingValues ->
+                        Surface(
+                            modifier = Modifier.padding(paddingValues),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            MainScreen(
+                                navController = navController,
+                                selectedEntryViewModel = selectedEntryViewModel
                             )
                         }
-                    }
-                ) { paddingValues ->
-                    Surface(
-                        modifier = Modifier.padding(paddingValues),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        MainScreen(navController = navController)
                     }
                 }
             }

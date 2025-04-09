@@ -15,6 +15,10 @@ sealed class Screen(
     object Atlas : Screen("atlas", R.drawable.atlas, "Atlas")
     object NewEntry : Screen("new_entry") // No need for icon or title
     object EntryDetail : Screen("entry_nav/{selectedDate}")
+    object Edit : Screen("edit_nav") {
+        fun withArgs(date: String): String = "$route/$date"
+    }
+
 
     object AddImage : Screen("add_image", R.drawable.add_image, "Add Image")
     object AddLocation : Screen("add_location", R.drawable.add_location, "Add Location")

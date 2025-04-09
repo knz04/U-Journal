@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,24 +16,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.model.dummyEntries
-import com.smd.u_journal.viewmodel.SelectedEntryViewModel
 
 @Composable
-fun EntryDetailScreen(
+fun EditScreen(
     selectedDate: String,
-    entries: List<JournalEntry> = dummyEntries,
-    selectedEntryViewModel: SelectedEntryViewModel
+    entries: List<JournalEntry> = dummyEntries
 ) {
     val entry = entries.find { it.date == selectedDate }
-
-    LaunchedEffect(entry) {
-        entry?.let {
-            selectedEntryViewModel.setDate(it.date)
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -91,6 +81,7 @@ fun EntryDetailScreen(
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
         } else {
+            // No entry for the selected date
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -106,9 +97,8 @@ fun EntryDetailScreen(
     }
 }
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun EntryDetailScreenPreview() {
-//    EntryDetailScreen(selectedDate = dummyEntries.last().date)
-//}
+@Preview(showBackground = true)
+@Composable
+fun EditScreenPreview() {
+    EditScreen(selectedDate = dummyEntries.last().date)
+}

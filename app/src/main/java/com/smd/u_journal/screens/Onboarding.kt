@@ -48,9 +48,10 @@ import androidx.navigation.compose.rememberNavController
 
 // Hardcoded credentials
 private const val VALID_EMAIL = "dragonlord1990@mail.ru"
-private const val VALID_PASSWORD = "titit"
+private const val VALID_PASSWORD = "ilovemmc"
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OnboardingScreen(navController: NavHostController = rememberNavController(), onLoginSuccess: () -> Unit = {}) {
     var isLogin by remember { mutableStateOf(true) }
@@ -131,6 +132,7 @@ fun OnboardingScreen(navController: NavHostController = rememberNavController(),
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AuthLogin(onLoginSuccess: () -> Unit) {
     var rememberMe by remember { mutableStateOf(false) }
@@ -251,7 +253,7 @@ fun AuthLogin(onLoginSuccess: () -> Unit) {
                             vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100, 200, 100), -1))
                             Toast.makeText(
                                 context,
-                                "dragonlord1990@mail.ru, titit",
+                                "dragonlord1990@mail.ru, ilovemmc",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -518,6 +520,7 @@ fun ForgotPasswordText() {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @Preview(
     name = "Portrait Preview",

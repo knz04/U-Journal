@@ -49,7 +49,7 @@ fun BottomNavBar(
     val screens = when (navMode) {
         BottomNavBarViewModel.NavBarMode.MAIN -> listOf(Screen.Home, Screen.Date, Screen.Media, Screen.Atlas)
         BottomNavBarViewModel.NavBarMode.NEW_ENTRY -> listOf(Screen.AddImage, Screen.AddLocation)
-        BottomNavBarViewModel.NavBarMode.ENTRY_NAV -> listOf(Screen.EntryDetail) // will be handled separately
+        BottomNavBarViewModel.NavBarMode.ENTRY_NAV -> listOf(Screen.EntryDetail, Screen.Edit) // will be handled separately
     }
 
     Box(
