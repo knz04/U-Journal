@@ -1,5 +1,6 @@
 package com.smd.u_journal
 
+import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -14,35 +15,19 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.smd.u_journal.components.BottomNavBar
-import com.smd.u_journal.components.JournalFab
-import com.smd.u_journal.components.TopBar
-import com.smd.u_journal.screens.MainScreen
-import com.smd.u_journal.ui.theme.UJournalTheme
-import com.smd.u_journal.viewmodel.BottomNavBarViewModel
-import com.smd.u_journal.viewmodel.TopBarViewModel
-import android.Manifest
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import com.smd.u_journal.components.EditButton
-import com.smd.u_journal.components.EditTopBar
+import com.smd.u_journal.components.*
 import com.smd.u_journal.navigation.Screen
+import com.smd.u_journal.screens.MainScreen
 import com.smd.u_journal.screens.OnboardingScreen
-import com.smd.u_journal.viewmodel.FabState
-import com.smd.u_journal.viewmodel.FloatingActionButtonViewModel
-import com.smd.u_journal.viewmodel.SelectedEntryViewModel
-import com.smd.u_journal.viewmodel.TopBarState
-
+import com.smd.u_journal.ui.theme.UJournalTheme
+import com.smd.u_journal.viewmodel.*
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -51,15 +36,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             UJournalTheme {
                 RequestPermissions()
+
                 val navController = rememberNavController()
+                val context = LocalContext.current
+
                 val topBarViewModel: TopBarViewModel = viewModel()
                 val bottomNavBarViewModel: BottomNavBarViewModel = viewModel()
                 val fabViewModel: FloatingActionButtonViewModel = viewModel()
-                val context = LocalContext.current
                 val selectedEntryViewModel: SelectedEntryViewModel = viewModel()
                 val selectedDate by selectedEntryViewModel.selectedDate.collectAsState()
 
                 var isLoggedIn by rememberSaveable { mutableStateOf(false) }
+                var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
                 if (!isLoggedIn) {
                     OnboardingScreen(
@@ -109,7 +97,9 @@ class MainActivity : ComponentActivity() {
                                 onImageClick = { /* TODO */ },
                                 onFavoriteClick = { /* TODO */ },
                                 onMenuClick = { /* TODO */ },
-                                onDelete = { /* edit di sini */ },
+                                onDelete = {
+                                    showDeleteDialog = true
+                                }
                             )
                         },
                         bottomBar = {
@@ -151,6 +141,18 @@ class MainActivity : ComponentActivity() {
                                 selectedEntryViewModel = selectedEntryViewModel
                             )
                         }
+                    }
+
+                    // 🔴 Delete confirmation dialog
+                    if (showDeleteDialog) {
+                        DeleteConfirmationDialog(
+                            onDismiss = { showDeleteDialog = false },
+                            onConfirm = {
+                                showDeleteDialog = false
+                                navController.popBackStack()
+                                Toast.makeText(context, "Entry deleted", Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     }
                 }
             }
