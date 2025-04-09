@@ -55,27 +55,30 @@ fun BottomNavBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clip(RoundedCornerShape(100.dp)),
         contentAlignment = Alignment.Center
     ) {
         if (navMode == BottomNavBarViewModel.NavBarMode.ENTRY_NAV) {
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(100.dp))
                     .background(Black)
-                    .height(72.dp)
-                    .padding(horizontal = 24.dp)
-                    .fillMaxWidth(),
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(100.dp)),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
+
+                // Previous Button
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
                         .background(Color.White)
                         .clickable { /* Handle previous action */ }
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         painter = painterResource(id = com.smd.u_journal.R.drawable.ic_back),
@@ -91,13 +94,18 @@ fun BottomNavBar(
                     )
                 }
 
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Next Button
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50.dp))
                         .background(Color.White)
                         .clickable { /* Handle next action */ }
-                        .padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = "Next",
@@ -114,15 +122,7 @@ fun BottomNavBar(
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .offset(x = (-16).dp) // adjust if needed
-            ) {
-                EditButton(
-                    onClick = { /* Handle edit click */ }
-                )
-            }
+
         } else {
             Row(
                 modifier = if (navMode == BottomNavBarViewModel.NavBarMode.MAIN) {
@@ -287,13 +287,54 @@ fun BottomNavItem(
 
 @Preview(showBackground = true)
 @Composable
-fun BottomNavBarPreview() {
+fun BottomNavBarMainPreview() {
     val navController = rememberNavController()
+    val viewModel = remember {
+        BottomNavBarViewModel().apply {
+            switchToMain()
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        BottomNavBar(navController = navController)
+        BottomNavBar(navController = navController, viewModel = viewModel)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomNavBarNewEntryPreview() {
+    val navController = rememberNavController()
+    val viewModel = remember {
+        BottomNavBarViewModel().apply {
+            switchToNewEntry()
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        BottomNavBar(navController = navController, viewModel = viewModel)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomNavBarEntryNavPreview() {
+    val navController = rememberNavController()
+    val viewModel = remember {
+        BottomNavBarViewModel().apply {
+            switchToEntryNav()
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        BottomNavBar(navController = navController, viewModel = viewModel)
     }
 }

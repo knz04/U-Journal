@@ -31,6 +31,9 @@ import com.smd.u_journal.ui.theme.UJournalTheme
 import com.smd.u_journal.viewmodel.BottomNavBarViewModel
 import com.smd.u_journal.viewmodel.TopBarViewModel
 import android.Manifest
+import com.smd.u_journal.components.EditButton
+import com.smd.u_journal.components.EditTopBar
+import com.smd.u_journal.navigation.Screen
 
 
 class MainActivity : ComponentActivity() {
@@ -47,14 +50,15 @@ class MainActivity : ComponentActivity() {
                 val isExpanded by topBarViewModel.isExpanded.collectAsState()
                 val currentRoute by navController.currentBackStackEntryAsState()
                 val isOnNewEntryScreen = currentRoute?.destination?.route == "new_entry"
-                val isOnEntryNav = currentRoute?.destination?.route == "entry_nav"
+                val isOnEntryNav = currentRoute?.destination?.route?.startsWith("entry_nav") == true
 
                 // Set BottomNavBar state
                 if (isOnNewEntryScreen) {
                     bottomNavBarViewModel.switchToNewEntry()
                 }
-                if (isOnEntryNav) {
+                else if (isOnEntryNav) {
                     bottomNavBarViewModel.switchToEntryNav()
+                    topBarViewModel.expand()
                 }
                 else {
                     bottomNavBarViewModel.switchToMain()
@@ -63,13 +67,34 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     topBar = {
-                        TopBar(
-                            isExpanded = isExpanded,
-                            onCloseClick = {
-                                topBarViewModel.collapse()
-                                navController.popBackStack()
+                        when {
+                            isOnEntryNav -> {
+                                EditTopBar(
+                                    onBackClick = { navController.navigate(Screen.Home.route) {
+                                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                                        launchSingleTop = true
+                                    } },
+                                    onImageClick = { /* TODO: implement */ },
+                                    onFavoriteClick = { /* TODO: implement */ },
+                                    onMenuClick = { /* TODO: implement */ }
+                                )
                             }
-                        )
+//                                isOnEntryEdit -> {
+//                                    EntryEditTopBar(
+//                                        onTrashClick = { /* TODO: delete entry */ },
+//                                        onBackClick = { navController.popBackStack() }
+//                                    )
+//                                }
+                            else -> {
+                                TopBar(
+                                    isExpanded = isExpanded,
+                                    onCloseClick = {
+                                        topBarViewModel.collapse()
+                                        navController.popBackStack()
+                                    }
+                                )
+                            }
+                        }
                     },
                     bottomBar = {
                         AnimatedVisibility(
@@ -80,18 +105,31 @@ class MainActivity : ComponentActivity() {
                             BottomNavBar(navController = navController, viewModel = bottomNavBarViewModel)
                         }
                     },
+
                     floatingActionButton = {
                         AnimatedVisibility(
                             visible = !isOnNewEntryScreen,
                             enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
                             exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
                         ) {
-                            JournalFab(onClick = {
-                                topBarViewModel.expand()
-                                navController.navigate("new_entry")
-                            })
+                            if (isOnEntryNav) {
+                                EditButton(
+                                    onClick = {
+                                        // taro sini el pael pael
+                                        // Handle edit action here
+                                    }
+                                )
+                            } else {
+                                JournalFab(
+                                    onClick = {
+                                        topBarViewModel.expand()
+                                        navController.navigate("new_entry")
+                                    }
+                                )
+                            }
                         }
                     }
+
                 ) { paddingValues ->
                     Surface(
                         modifier = Modifier.padding(paddingValues),

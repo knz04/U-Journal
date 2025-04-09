@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.smd.u_journal.R
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
@@ -38,6 +39,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TopBar(isExpanded: Boolean, onCloseClick: () -> Unit) {
+
     SideEffect {
         Log.d("TopBar", "Recomposing with isExpanded = $isExpanded")
     }

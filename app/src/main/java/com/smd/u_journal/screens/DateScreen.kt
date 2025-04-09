@@ -15,7 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.model.dummyEntries
 import kotlinx.coroutines.launch
@@ -23,61 +25,55 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun DateScreen() {
-    var selectedEntry by remember { mutableStateOf<JournalEntry?>(null) }
+fun DateScreen(
+    navController: NavController
+) {
+    val todayCalendar = remember { Calendar.getInstance() }
+    val currentMonth = todayCalendar.get(Calendar.MONTH)
+    val currentYear = todayCalendar.get(Calendar.YEAR)
 
-//    if (selectedEntry != null) {
-//        EntryDetailScreen(
-//            entry = selectedEntry!!
-//        )
-//    }
-//    else {
-        val todayCalendar = remember { Calendar.getInstance() }
-        val currentMonth = todayCalendar.get(Calendar.MONTH)
-        val currentYear = todayCalendar.get(Calendar.YEAR)
-
-        val monthsToDisplay = remember {
-            buildList {
-                val cal = Calendar.getInstance()
-                cal.set(currentYear, currentMonth, 1)
-                cal.add(Calendar.MONTH, -2)
-                repeat(5) {
-                    add(Pair(cal.get(Calendar.MONTH), cal.get(Calendar.YEAR)))
-                    cal.add(Calendar.MONTH, 1)
-                }
-            }
-        }
-
-        val listState = rememberLazyListState()
-        val coroutineScope = rememberCoroutineScope()
-
-        LaunchedEffect(Unit) {
-            coroutineScope.launch {
-                listState.animateScrollToItem(2)
-            }
-        }
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            items(monthsToDisplay.size) { index ->
-                val (month, year) = monthsToDisplay[index]
-                MonthView(
-                    month = month,
-                    year = year,
-                    journalEntries = dummyEntries,
-                    onEntryClick = { entry ->
-                        selectedEntry = entry
-                    }
-                )
-                Spacer(modifier = Modifier.height(32.dp))
+    val monthsToDisplay = remember {
+        buildList {
+            val cal = Calendar.getInstance()
+            cal.set(currentYear, currentMonth, 1)
+            cal.add(Calendar.MONTH, -2)
+            repeat(5) {
+                add(Pair(cal.get(Calendar.MONTH), cal.get(Calendar.YEAR)))
+                cal.add(Calendar.MONTH, 1)
             }
         }
     }
-//}
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            listState.animateScrollToItem(2) // Center to current month
+        }
+    }
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        items(monthsToDisplay.size) { index ->
+            val (month, year) = monthsToDisplay[index]
+            MonthView(
+                month = month,
+                year = year,
+                journalEntries = dummyEntries,
+                onEntryClick = { entry ->
+                    navController.navigate("entry_nav/${entry.date}")
+                }
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
 
 @Composable
 private fun MonthView(
@@ -211,5 +207,6 @@ private fun getFirstDayOfMonth(month: Int, year: Int): Int {
 @Preview(showBackground = true)
 @Composable
 fun DateScreenPreview() {
-    DateScreen()
+    val navController = rememberNavController()
+    DateScreen(navController = navController)
 }

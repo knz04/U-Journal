@@ -13,7 +13,7 @@ sealed class Screen(
     object Media : Screen("media", R.drawable.media, "Media")
     object Atlas : Screen("atlas", R.drawable.atlas, "Atlas")
     object NewEntry : Screen("new_entry") // No need for icon or title
-    object EntryDetail : Screen("entry_nav")
+    object EntryDetail : Screen("entry_nav/{selectedDate}")
 
     object AddImage : Screen("add_image", R.drawable.add_image, "Add Image")
     object AddLocation : Screen("add_location", R.drawable.add_location, "Add Location")
