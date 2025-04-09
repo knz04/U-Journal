@@ -35,7 +35,7 @@ fun AtlasScreen() {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                     location?.let {
                         userLocation = LatLng(it.latitude, it.longitude)
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation, 15f)
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation!!, 15f)
                     }
                 }
             }
