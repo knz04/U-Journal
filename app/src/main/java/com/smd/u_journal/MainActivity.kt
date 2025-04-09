@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
                                 onImageClick = { /* TODO */ },
                                 onFavoriteClick = { /* TODO */ },
                                 onMenuClick = { /* TODO */ },
+                                onDelete = { /* edit di sini */ },
                             )
                         },
                         bottomBar = {
