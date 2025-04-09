@@ -3,10 +3,10 @@ package com.smd.u_journal.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
-//import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
@@ -26,13 +26,10 @@ import com.smd.u_journal.ui.theme.Blue300
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.ui.res.painterResource
 import com.smd.u_journal.R
+import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.components.JournalEntryCard
-import androidx.navigation.NavController
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +66,7 @@ fun HomeScreen() {
                 value = "",
                 onValueChange = {},
                 placeholder = {
-                    Text("Search", color = Color(0xFF747474), fontWeight = FontWeight.Normal,style = MaterialTheme.typography.bodySmall)
+                    Text("Search", color = Color(0xFF747474), fontWeight = FontWeight.Normal, style = MaterialTheme.typography.bodySmall)
                 },
                 leadingIcon = {
                     Icon(
@@ -170,7 +167,6 @@ fun HomeScreen() {
                         contentDescription = "Sort Icon",
                         tint = Color(0xFF000000)
                     )
-
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -184,27 +180,17 @@ fun HomeScreen() {
                 )
             }
         }
-        item {
-            JournalEntryCard(
-                title = "Chimpanzini Bananini",
-                subtitle = "Kisah Hidup Anomali Monyet",
-                dateLabel = "Recently Opened",
-                onClick = {
-//                    navController.navigate("new_entry")
-                }
-            )
-        }
-        item {
-            JournalEntryCard(
-                title = "Chimpanzini Bananini",
-                subtitle = "Kisah Hidup Anomali Monyet",
-                dateLabel = "Recently Opened",
-                onClick = {
-//                    navController.navigate("new_entry")
-                }
-            )
-        }
 
+        // List of Journal Cards
+        items(dummyEntries) { entry ->
+            JournalEntryCard(
+                journalEntry = entry,
+                dateLabel = "Recently Opened",
+                onClick = {
+                    // TODO: navigate to detail screen if needed
+                }
+            )
+        }
     }
 }
 
