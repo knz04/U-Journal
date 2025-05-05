@@ -25,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UJournal"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAwuvCm5a8jNZ5SBrVJ-lLBduvaQM3hfeo" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
