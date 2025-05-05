@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "714704373429",
+    "project_id": "u-journal-71c12",
+    "storage_bucket": "u-journal-71c12.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714704373429:android:d7fdf4134603232737e0fc",
+        "android_client_info": {
+          "package_name": "com.smd.u_journal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYwkL2LLTqMlasTWFb0YVqh1bADQB4zUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
