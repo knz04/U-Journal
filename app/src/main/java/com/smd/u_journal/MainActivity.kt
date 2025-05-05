@@ -40,6 +40,9 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val context = LocalContext.current
 
+                val authViewModel: AuthViewModel = viewModel()
+                val authState by authViewModel.authState.collectAsState()
+
                 val topBarViewModel: TopBarViewModel = viewModel()
                 val bottomNavBarViewModel: BottomNavBarViewModel = viewModel()
                 val fabViewModel: FloatingActionButtonViewModel = viewModel()
@@ -60,28 +63,30 @@ class MainActivity : ComponentActivity() {
                     val currentRoute by navController.currentBackStackEntryAsState()
                     val route = currentRoute?.destination?.route.orEmpty()
 
-                    when {
-                        route == Screen.NewEntry.route -> {
-                            bottomNavBarViewModel.switchToNewEntry()
-                            fabViewModel.setFabState(FabState.ADD)
-                        }
+                    LaunchedEffect(route) {
+                        when {
+                            route == Screen.NewEntry.route -> {
+                                bottomNavBarViewModel.switchToNewEntry()
+                                fabViewModel.setFabState(FabState.ADD)
+                            }
 
-                        route.startsWith("entry_nav") -> {
-                            bottomNavBarViewModel.switchToEntryNav()
-                            topBarViewModel.setState(TopBarState.ENTRY_NAV)
-                            fabViewModel.setFabState(FabState.EDIT)
-                        }
+                            route.startsWith("entry_nav") -> {
+                                bottomNavBarViewModel.switchToEntryNav()
+                                topBarViewModel.setState(TopBarState.ENTRY_NAV)
+                                fabViewModel.setFabState(FabState.EDIT)
+                            }
 
-                        route.startsWith("edit_nav") -> {
-                            bottomNavBarViewModel.switchToNewEntry()
-                            topBarViewModel.setState(TopBarState.EDIT_ENTRY)
-                            fabViewModel.setFabState(FabState.EDIT)
-                        }
+                            route.startsWith("edit_nav") -> {
+                                bottomNavBarViewModel.switchToNewEntry()
+                                topBarViewModel.setState(TopBarState.EDIT_ENTRY)
+                                fabViewModel.setFabState(FabState.EDIT)
+                            }
 
-                        else -> {
-                            bottomNavBarViewModel.switchToMain()
-                            topBarViewModel.setState(TopBarState.COLLAPSED)
-                            fabViewModel.setFabState(FabState.ADD)
+                            else -> {
+                                bottomNavBarViewModel.switchToMain()
+                                topBarViewModel.setState(TopBarState.COLLAPSED)
+                                fabViewModel.setFabState(FabState.ADD)
+                            }
                         }
                     }
 
@@ -143,7 +148,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // 🔴 Delete confirmation dialog
                     if (showDeleteDialog) {
                         DeleteConfirmationDialog(
                             onDismiss = { showDeleteDialog = false },
