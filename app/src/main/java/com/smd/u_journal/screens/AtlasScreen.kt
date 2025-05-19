@@ -16,15 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.room.util.copy
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.*
 import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.model.dummyEntries
-import com.smd.u_journal.navigation.Screen
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 

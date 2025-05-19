@@ -33,8 +33,6 @@ import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 import com.smd.u_journal.viewmodel.BottomNavBarViewModel
-import com.smd.u_journal.components.EditButton
-import com.smd.u_journal.screens.EntryDetailScreen
 
 @Composable
 fun BottomNavBar(

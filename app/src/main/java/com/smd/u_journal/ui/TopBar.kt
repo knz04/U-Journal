@@ -1,0 +1,450 @@
+package com.smd.u_journal.ui
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.smd.u_journal.R
+import com.smd.u_journal.ui.theme.Bg100
+import com.smd.u_journal.ui.theme.Black
+import com.smd.u_journal.ui.theme.Blue100
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun TopBar(
+    state: TopBarState,
+    onCloseClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
+    onImageClick: () -> Unit = {},
+    onFavoriteClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
+    onDelete: () -> Unit = {},
+) {
+    val isCollapsed = state == TopBarState.COLLAPSED
+    val date = remember { getFormattedDate() }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        when (state) {
+            TopBarState.ENTRY_NAV -> EntryNavigationBar(
+                onBackClick = onBackClick,
+                onImageClick = onImageClick,
+                onFavoriteClick = onFavoriteClick,
+                onMenuClick = onMenuClick
+            )
+
+            TopBarState.EDIT_ENTRY -> EditEntryBar(
+                date = date,
+                onBackClick = onBackClick,
+                onDelete = onDelete
+            )
+
+            TopBarState.COLLAPSED -> CollapsedBar()
+            TopBarState.NEW_ENTRY -> TODO()
+            TopBarState.EXPANDED -> TODO()
+        }
+
+        if (state != TopBarState.ENTRY_NAV && state != TopBarState.EDIT_ENTRY) {
+            ProfileImage(visible = isCollapsed)
+        }
+    }
+}
+
+@Composable
+private fun EntryNavigationBar(
+    onBackClick: () -> Unit,
+    onImageClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onMenuClick: () -> Unit
+) {
+    AnimatedBar(width = 360.dp) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            NavigationIcon(R.drawable.ic_back, "Back", onBackClick)
+            ActionIconsRow(
+                icons = listOf(
+                    IconData(R.drawable.ic_share, "Share", onImageClick),
+                    IconData(R.drawable.ic_star, "Favorite", onFavoriteClick),
+                    IconData(R.drawable.ic_more, "More", onMenuClick)
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditEntryBar(
+    date: String,
+    onBackClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    AnimatedBar(width = 360.dp) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            NavigationIcon(R.drawable.ic_back, "Back", onBackClick)
+            Text(text = date, color = Blue100, fontSize = 14.sp)
+            NavigationIcon(R.drawable.delete, "Delete", onDelete)
+        }
+    }
+}
+
+@Composable
+private fun CollapsedBar() {
+    AnimatedBar(width = 172.dp) {
+        Text(
+            text = "U-Journal",
+            style = MaterialTheme.typography.titleMedium,
+            color = Bg100
+        )
+    }
+}
+
+@Composable
+private fun AnimatedBar(
+    width: Dp,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val animatedWidth by animateDpAsState(
+        targetValue = width,
+        animationSpec = tween(500),
+        label = "Bar Width Animation"
+    )
+
+    Box(
+        modifier = Modifier
+            .width(animatedWidth)
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Black)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center,
+        content = content
+    )
+}
+
+@Composable
+private fun ProfileImage(visible: Boolean) {
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(500),
+        label = "Profile Alpha Animation"
+    )
+
+    Image(
+        painter = painterResource(R.drawable.profile_placeholder),
+        contentDescription = "User Profile",
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .alpha(alpha),
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun ActionIconsRow(icons: List<IconData>) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        icons.forEach { icon ->
+            NavigationIcon(
+                drawableRes = icon.resId,
+                contentDescription = icon.description,
+                onClick = icon.onClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun NavigationIcon(
+    drawableRes: Int,
+    contentDescription: String,
+    onClick: () -> Unit,
+    alignment: Alignment? = null
+) {
+    Box(modifier = Modifier.clickable(onClick = onClick)) {
+        Icon(
+            painter = painterResource(id = drawableRes),
+            contentDescription = contentDescription,
+            tint = Blue100,
+            modifier = alignment?.let { Modifier.align(it) } ?: Modifier
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun getFormattedDate(): String {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+    return LocalDate.now().format(formatter)
+}
+
+private data class IconData(
+    val resId: Int,
+    val description: String,
+    val onClick: () -> Unit
+)
+
+enum class TopBarState {
+    COLLAPSED,
+    EXPANDED,
+    NEW_ENTRY,
+    ENTRY_NAV,
+    EDIT_ENTRY
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, name = "TopBar - ENTRY_NAV")
+@Composable
+fun PreviewTopBarEntryNav() {
+    TopBar(
+        state = TopBarState.ENTRY_NAV,
+        onBackClick = {},
+        onImageClick = {},
+        onFavoriteClick = {},
+        onMenuClick = {}
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, name = "TopBar - EDIT_ENTRY")
+@Composable
+fun PreviewTopBarEditEntry() {
+    TopBar(
+        state = TopBarState.EDIT_ENTRY,
+        onBackClick = {},
+        onDelete = {}
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, name = "TopBar - COLLAPSED")
+@Composable
+fun PreviewTopBarCollapsed() {
+    TopBar(
+        state = TopBarState.COLLAPSED
+    )
+}
+
+
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Composable
+//fun TopBar(
+//    state: TopBarState,
+//    onCloseClick: () -> Unit = {},
+//    onBackClick: () -> Unit = {},
+//    onImageClick: () -> Unit = {},
+//    onFavoriteClick: () -> Unit = {},
+//    onMenuClick: () -> Unit = {},
+//    onDelete: () -> Unit = {},
+//) {
+//    val isCollapsed = state == TopBarState.COLLAPSED
+//
+//    val barWidth by animateDpAsState(
+//        targetValue = if (isCollapsed) 172.dp else 360.dp,
+//        animationSpec = tween(durationMillis = 500),
+//        label = "Bar Width Animation"
+//    )
+//
+//    val profileAlpha by animateFloatAsState(
+//        targetValue = if (isCollapsed) 1f else 0f,
+//        animationSpec = tween(durationMillis = 500),
+//        label = "Profile Alpha Animation"
+//    )
+//
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        if (state == TopBarState.ENTRY_NAV) {
+//            Box(
+//                modifier = Modifier
+//                    .width(barWidth)
+//                    .height(40.dp)
+//                    .clip(RoundedCornerShape(20.dp))
+//                    .background(Black)
+//                    .padding(horizontal = 16.dp),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_back),
+//                        contentDescription = "Back",
+//                        tint = Blue100,
+//                        modifier = Modifier.clickable { onBackClick() }
+//                    )
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_share),
+//                            contentDescription = "Share",
+//                            tint = Blue100,
+//                            modifier = Modifier.clickable { onImageClick() }
+//                        )
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_star),
+//                            contentDescription = "Favorite",
+//                            tint = Blue100,
+//                            modifier = Modifier.clickable { onFavoriteClick() }
+//                        )
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_more),
+//                            contentDescription = "More",
+//                            tint = Blue100,
+//                            modifier = Modifier.clickable { onMenuClick() }
+//                        )
+//                    }
+//                }
+//            }
+//        } else if (state == TopBarState.EDIT_ENTRY) {
+//            val date = remember {
+//                val today = LocalDate.now()
+//                val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+//                today.format(formatter)
+//            }
+//            Box(
+//                modifier = Modifier
+//                    .width(barWidth)
+//                    .height(40.dp)
+//                    .clip(RoundedCornerShape(20.dp))
+//                    .background(Black)
+//                    .padding(horizontal = 16.dp),
+//                contentAlignment = Alignment.CenterStart
+//            ) {
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.SpaceBetween
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_back),
+//                        contentDescription = "Back",
+//                        tint = Blue100,
+//                        modifier = Modifier.clickable { onBackClick() }
+//                    )
+//                    Text(text = date, color = Blue100, fontSize = 14.sp)
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.delete),
+//                            contentDescription = "More",
+//                            tint = Blue100,
+//                            modifier = Modifier.clickable { onDelete() }
+//                        )
+//                    }
+//                }
+//            }
+//
+//        }
+//        else {
+//            Box(
+//                modifier = Modifier
+//                    .width(barWidth)
+//                    .height(40.dp)
+//                    .clip(RoundedCornerShape(20.dp))
+//                    .background(Black),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                when (state) {
+//                    TopBarState.EXPANDED -> {
+//                        val date = remember {
+//                            val today = LocalDate.now()
+//                            val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+//                            today.format(formatter)
+//                        }
+//                        Text(text = date, color = Blue100, fontSize = 14.sp)
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.close),
+//                            contentDescription = "Close",
+//                            tint = Blue100,
+//                            modifier = Modifier
+//                                .align(Alignment.CenterStart)
+//                                .padding(start = 12.dp)
+//                                .clickable { onCloseClick() }
+//                        )
+//                    }
+//
+//
+//
+//                    TopBarState.COLLAPSED -> {
+//                        Text(
+//                            text = "U-Journal",
+//                            style = MaterialTheme.typography.titleMedium,
+//                            color = Bg100
+//                        )
+//                    }
+//
+//                    else -> {}
+//                }
+//            }
+//
+//            Image(
+//                painter = painterResource(id = R.drawable.profile_placeholder),
+//                contentDescription = "User Profile",
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .clip(CircleShape)
+//                    .alpha(profileAlpha),
+//                contentScale = ContentScale.Crop
+//            )
+//        }
+//    }
+//}
+//
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, name = "Collapsed State")
+//@Composable
+//fun TopBarCollapsedPreview() {
+//    Surface {
+//        TopBar(state = TopBarState.COLLAPSED, onCloseClick = {})
+//    }
+//}

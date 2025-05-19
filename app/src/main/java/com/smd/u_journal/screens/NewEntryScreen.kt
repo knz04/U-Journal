@@ -1,6 +1,8 @@
 package com.smd.u_journal.screens
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
@@ -15,11 +17,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.smd.u_journal.components.TopBar
+import com.smd.u_journal.ui.BottomNavbar2
+import com.smd.u_journal.ui.TopBar
+import com.smd.u_journal.ui.TopBarState
+import com.smd.u_journal.ui.newEntryItems
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewEntryScreen(navController: NavController) {
-    // Handle back button press
     BackHandler {
         navController.popBackStack()
     }
@@ -27,6 +32,24 @@ fun NewEntryScreen(navController: NavController) {
     var text by remember { mutableStateOf("") }
 
     Scaffold(
+        bottomBar = {
+            BottomNavbar2(
+                navController = navController,
+                navBarMode = newEntryItems,
+                alwaysShowText = true
+            )
+        },
+        topBar = {
+            TopBar(
+                state = TopBarState.NEW_ENTRY,
+                onCloseClick = { TODO() },
+                onBackClick = { TODO() },
+                onImageClick = { TODO() },
+                onFavoriteClick = { TODO() },
+                onMenuClick = { TODO() },
+                onDelete = { TODO() },
+            )
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -51,8 +74,9 @@ fun NewEntryScreen(navController: NavController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
-fun PreviewNewEntryScreen() {
+fun NewEntryScreenPreview() {
     NewEntryScreen(navController = rememberNavController())
 }
