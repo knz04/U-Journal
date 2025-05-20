@@ -3,6 +3,7 @@ package com.smd.u_journal.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -63,11 +64,13 @@ class AuthViewModel : ViewModel() {
                 .await()
 
             _authState.value = AuthState.Success(auth.currentUser!!.uid)
+        } catch (e: FirebaseAuthUserCollisionException) {
+            _authState.value = AuthState.Error("Email already in use. Please use a different email.")
         } catch (e: Exception) {
-            auth.currentUser?.delete()?.await()
             _authState.value = AuthState.Error(e.message ?: "Registration failed")
         }
     }
+
 
     fun signOut() {
         auth.signOut()

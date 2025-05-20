@@ -1,5 +1,7 @@
 package com.smd.u_journal.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -9,6 +11,7 @@ import com.smd.u_journal.screens.DateScreen
 import com.smd.u_journal.screens.HomeScreen
 import com.smd.u_journal.screens.MediaScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainGraph(navController: NavHostController) {
     NavHost(

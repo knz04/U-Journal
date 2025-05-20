@@ -72,7 +72,7 @@ fun OnboardingScreen() {
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(modifier = Modifier
-                    .width(190.dp)
+                    .width(180.dp)
                     .background(Color(0xFFE2E8F0)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isLogin) Color(0xFF1F1F1F) else Color(0xFFE2E8F0)
@@ -84,7 +84,7 @@ fun OnboardingScreen() {
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(modifier = Modifier
-                    .width(190.dp)
+                    .width(200.dp)
                     .background(Color(0xFFE2E8F0)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (!isLogin) Color(0xFF1F1F1F) else Color(0xFFE2E8F0)
