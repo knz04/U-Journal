@@ -21,36 +21,38 @@ fun AppNavHost(navController: NavHostController) {
 
     // pick start destination
     val start = if (authState is AuthViewModel.AuthState.Success) {
-        Screen.Home.route
+        "main"
     } else {
-        Screen.Onboarding.route
+        "onboarding"
     }
 
     NavHost(navController, startDestination = start) {
         // --- AUTH FLOW ---
-        composable(Screen.Onboarding.route) {
-            OnboardingScreen()
+        composable("onboarding") {
+            OnboardingScreen(navController)
         }
 
         // --- APP FLOW (tabs + entry screens) ---
         // “Home” is actually your full chrome + content
-        composable(Screen.Home.route) {
+        composable("main") {
             MainScreen(navController)
         }
+
         // entry screens (launched by FAB or deep links)
-        composable(Screen.NewEntry.route) {
+        composable("new") {
             NewEntryScreen(navController)
         }
-        // etc: EntryDetail, Edit, AddImage, AddLocation…
-        composable(Screen.Date.route) {
-            DateScreen(navController)
-        }
-        composable(Screen.Media.route) {
-            MediaScreen(navController)
-        }
-        composable(Screen.Atlas.route) {
-            AtlasScreen(navController)
-        }
+
+//        // etc: EntryDetail, Edit, AddImage, AddLocation…
+//        composable(Screen.Date.route) {
+//            DateScreen(navController)
+//        }
+//        composable(Screen.Media.route) {
+//            MediaScreen(navController)
+//        }
+//        composable(Screen.Atlas.route) {
+//            AtlasScreen(navController)
+//        }
     }
 }
 

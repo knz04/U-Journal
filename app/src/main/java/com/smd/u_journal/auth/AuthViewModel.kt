@@ -71,7 +71,7 @@ class AuthViewModel : ViewModel() {
 
     fun signOut() {
         auth.signOut()
-        _authState.value = AuthState.Success("") // Reset state
+        _authState.value = AuthState.Error("Logged out") // Optional: Update state
     }
 
     fun resetPassword(email: String) = viewModelScope.launch {

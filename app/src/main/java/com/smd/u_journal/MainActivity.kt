@@ -24,9 +24,8 @@ class MainActivity : ComponentActivity() {
             UJournalTheme {
                 RequestPermissions()
                 val navController = rememberNavController()
-
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    AppNavHost(navController)       // ← only here
+                    AppNavHost(navController)
                 }
             }
         }

@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,8 +43,11 @@ import com.smd.u_journal.ui.theme.Blue100
 fun BottomNavbar2(
     navController: NavController,
     navBarMode: List<Screen>,
-    alwaysShowText: Boolean
-) {
+    alwaysShowText: Boolean,
+    selected: Int,
+    onItemSelected: (Int) -> Unit
+)
+ {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -62,7 +68,7 @@ fun BottomNavbar2(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            navBarMode.forEach { screen ->
+            navBarMode.forEachIndexed { index, screen ->
                 val isSelected = screen.route == currentRoute
 
                 BottomNavItem2(
@@ -70,6 +76,7 @@ fun BottomNavbar2(
                     isSelected = isSelected,
                     alwaysShowText = alwaysShowText,
                     onClick = {
+                        onItemSelected(index)
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -161,14 +168,14 @@ val newEntryItems = listOf(
     Screen.AddLocation
 )
 
-@Preview
-@Composable
-fun BottomNavBar2Preview() {
-    val navController = rememberNavController()
-    val alwaysShowText = true
-    BottomNavbar2(
-        navController = navController,
-        navBarMode = newEntryItems,
-        alwaysShowText = alwaysShowText
-    )
-}
+//@Preview
+//@Composable
+//fun BottomNavBar2Preview() {
+//    val navController = rememberNavController()
+//    val alwaysShowText = true
+//    BottomNavbar2(
+//        navController = navController,
+//        navBarMode = newEntryItems,
+//        alwaysShowText = alwaysShowText
+//    )
+//}

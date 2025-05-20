@@ -37,7 +37,9 @@ fun NewEntryScreen(navController: NavController) {
             BottomNavbar2(
                 navController = navController,
                 navBarMode = newEntryItems,
-                alwaysShowText = true
+                alwaysShowText = true,
+                selected = TODO(),
+                onItemSelected = { TODO() }
             )
         },
         topBar = {
@@ -51,8 +53,8 @@ fun NewEntryScreen(navController: NavController) {
                 onDelete = { TODO() },
                 onLogout = {
                     // Sign out and navigate back to auth
-                    navController.navigate(Screen.Onboarding.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true }
+                    navController.navigate("onboarding") {
+                        popUpTo("main") { inclusive = true }
                     }
                 },
             )

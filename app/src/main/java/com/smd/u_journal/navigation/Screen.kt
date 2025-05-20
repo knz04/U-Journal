@@ -8,8 +8,11 @@ sealed class Screen(
     @DrawableRes val iconRes: Int = 0, // Default value for non-nav items
     val title: String = "" // Default value for non-nav items
 ) {
-    // MAIN
+    // AUTH
     object Onboarding : Screen("onboarding")
+
+    // MAIN
+    object Main : Screen("main")
     object Home : Screen("home", R.drawable.home, "Home")
     object Date : Screen("date", R.drawable.date, "Date")
     object Media : Screen("media", R.drawable.media, "Media")

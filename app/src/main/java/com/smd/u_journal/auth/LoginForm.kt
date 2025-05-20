@@ -53,13 +53,13 @@ fun LoginForm(
     var rememberMe by remember { mutableStateOf(false) }
     val authState by viewModel.authState.collectAsState(initial = AuthViewModel.AuthState.Loading)
 
-    LaunchedEffect(viewModel.authState) {
+    LaunchedEffect(authState) {
         if (authState is AuthViewModel.AuthState.Success) {
             val userId = (authState as AuthViewModel.AuthState.Success).userId
             if (userId.isNotEmpty()) {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Onboarding.route) { inclusive = true }
-                    }
+                navController.navigate("main") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
             }
         }
     }

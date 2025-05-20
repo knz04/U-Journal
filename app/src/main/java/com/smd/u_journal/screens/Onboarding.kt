@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.R
 import com.smd.u_journal.auth.AuthViewModel
@@ -28,10 +29,9 @@ import com.smd.u_journal.auth.LoginForm
 import com.smd.u_journal.auth.RegisterForm
 
 @Composable
-fun OnboardingScreen() {
+fun OnboardingScreen(navController: NavHostController) {
     var isLogin by remember { mutableStateOf(true) }
     val portraitBackground = painterResource(R.drawable.background)
-    val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
 
     Column(
@@ -114,13 +114,13 @@ fun OnboardingScreen() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-@Preview(
-    name = "Portrait Preview",
-    showBackground = true,
-    showSystemUi = true
-)
-fun AuthScreenPreview() {
-    OnboardingScreen()
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Composable
+//@Preview(
+//    name = "Portrait Preview",
+//    showBackground = true,
+//    showSystemUi = true
+//)
+//fun AuthScreenPreview() {
+//    OnboardingScreen()
+//}

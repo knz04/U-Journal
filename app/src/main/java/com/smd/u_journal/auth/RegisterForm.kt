@@ -38,23 +38,22 @@ fun RegisterForm(
     var registrationError by remember { mutableStateOf<String?>(null) }
     val authState by viewModel.authState.collectAsState(initial = AuthViewModel.AuthState.Loading)
 
-        LaunchedEffect(viewModel.authState) {
-            when (authState) {
-                is AuthViewModel.AuthState.Success -> {
-                    val userId  = (authState as AuthViewModel.AuthState.Success).userId
-                    if (userId.isNotEmpty()) {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Onboarding.route) { inclusive = true }
-                        }
+    LaunchedEffect(viewModel.authState) {
+        when (authState) {
+            is AuthViewModel.AuthState.Success -> {
+                val userId  = (authState as AuthViewModel.AuthState.Success).userId
+                if (userId.isNotEmpty()) {
+                    navController.navigate("main") {
+                        popUpTo("onboarding") { inclusive = true }
                     }
                 }
-                is AuthViewModel.AuthState.Error -> {
-                    registrationError = (authState as AuthViewModel.AuthState.Error).message
-                }
-                AuthViewModel.AuthState.Loading -> {
-
-                }
             }
+            is AuthViewModel.AuthState.Error -> {
+                registrationError = (authState as AuthViewModel.AuthState.Error).message
+            }
+            AuthViewModel.AuthState.Loading -> {
+            }
+        }
     }
 
     Column(Modifier.fillMaxWidth()) {
