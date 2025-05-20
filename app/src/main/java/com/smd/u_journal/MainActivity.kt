@@ -13,7 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
-import com.smd.u_journal.navigation.RootNavigationGraph
+import com.smd.u_journal.navigation.AppNavHost
 import com.smd.u_journal.ui.theme.UJournalTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,17 +24,15 @@ class MainActivity : ComponentActivity() {
             UJournalTheme {
                 RequestPermissions()
                 val navController = rememberNavController()
-                Surface(
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    RootNavigationGraph(
-                        navHostController = navController
-                    )
+
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    AppNavHost(navController)       // ← only here
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun RequestPermissions() {

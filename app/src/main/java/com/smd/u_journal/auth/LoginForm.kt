@@ -23,6 +23,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,8 +38,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.rpc.context.AttributeContext.Auth
 import com.smd.u_journal.R
-import com.smd.u_journal.navigation.Graph
+import com.smd.u_journal.navigation.Screen
 
 @Composable
 fun LoginForm(
@@ -49,23 +51,15 @@ fun LoginForm(
     var password by remember { mutableStateOf("") }
     val loginError by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
+    val authState by viewModel.authState.collectAsState(initial = AuthViewModel.AuthState.Loading)
 
     LaunchedEffect(viewModel.authState) {
-        viewModel.authState.collect { state ->
-            when (state) {
-                is AuthViewModel.AuthState.Success -> {
-                    if (state.userId.isNotEmpty()) {
-                        navController.navigate(Graph.MAIN) {
-                            popUpTo(Graph.AUTH) { inclusive = true }
-                        }
+        if (authState is AuthViewModel.AuthState.Success) {
+            val userId = (authState as AuthViewModel.AuthState.Success).userId
+            if (userId.isNotEmpty()) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Onboarding.route) { inclusive = true }
                     }
-                }
-                is AuthViewModel.AuthState.Error -> {
-
-                }
-                AuthViewModel.AuthState.Loading -> {
-
-                }
             }
         }
     }
@@ -254,11 +248,11 @@ fun LoginForm(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginFormPreview() {
-    LoginForm(
-        navController = TODO(),
-        viewModel = TODO()
-    )
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun LoginFormPreview() {
+//    LoginForm(
+//        navController = TODO(),
+//        viewModel = TODO()
+//    )
+//}

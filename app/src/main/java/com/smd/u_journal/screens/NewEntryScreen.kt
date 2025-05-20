@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.smd.u_journal.navigation.Screen
 import com.smd.u_journal.ui.BottomNavbar2
 import com.smd.u_journal.ui.TopBar
 import com.smd.u_journal.ui.TopBarState
@@ -48,6 +49,12 @@ fun NewEntryScreen(navController: NavController) {
                 onFavoriteClick = { TODO() },
                 onMenuClick = { TODO() },
                 onDelete = { TODO() },
+                onLogout = {
+                    // Sign out and navigate back to auth
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
             )
         }
     ) { paddingValues ->

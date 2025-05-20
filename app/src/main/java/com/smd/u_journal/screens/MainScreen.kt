@@ -13,62 +13,61 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
+import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.ui.BottomNavbar2
 import com.smd.u_journal.ui.FabState
 import com.smd.u_journal.ui.FloatingActionButton
 import com.smd.u_journal.ui.TopBar
 import com.smd.u_journal.ui.TopBarState
 import com.smd.u_journal.ui.mainItems
-import com.smd.u_journal.navigation.MainGraph
 import com.smd.u_journal.navigation.Screen
+import com.smd.u_journal.navigation.AppNavHost
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(navController: NavHostController) {
+    // observe current route
+    val backStack by navController.currentBackStackEntryAsState()
+    val route     = backStack?.destination?.route
+
     Scaffold(
         topBar = {
             TopBar(
-                state = TopBarState.COLLAPSED
+                state = TopBarState.COLLAPSED,
+                onLogout = {
+                    // sign out inside TopBar’s onLogout, then:
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = true,
-                enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
-                exit = slideOutVertically(targetOffsetY = { it * 3 }, animationSpec = tween(300))
-            ) {
-                FloatingActionButton(
-                    fabState = FabState.ADD,
-                    onAddClick = { navController.navigate(Screen.NewEntry.route) },
-                    onEditClick = {},
-                )
-            }
+            FloatingActionButton(
+                fabState = FabState.ADD,
+                onAddClick = {
+                    navController.navigate(Screen.NewEntry.route)
+                },
+                onEditClick = { TODO() }
+            )
         },
         bottomBar = {
-            AnimatedVisibility(
-                visible = true,
-                enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(500)),
-                exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(500))
-            ) {
-                BottomNavbar2(
-                    navController = navController,
-                    navBarMode = mainItems,
-                    alwaysShowText = false,
-                )
-            }
+            BottomNavbar2(
+                navController = navController,
+                navBarMode    = mainItems,
+                alwaysShowText= false
+            )
         }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            MainGraph(navController = navController)
+    ) { padding ->
+        Box(Modifier.padding(padding)) {
+            when (route) {
+                Screen.Home.route  -> HomeScreen()
+                Screen.Date.route  -> DateScreen()
+                Screen.Media.route -> MediaScreen()
+                Screen.Atlas.route -> AtlasScreen()
+                else               -> {} // e.g. if you’re on NewEntry, the NewEntryScreen is rendering above
+            }
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    val navController = rememberNavController()
-    MainScreen(navController)
-}

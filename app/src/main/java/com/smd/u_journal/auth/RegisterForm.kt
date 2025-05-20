@@ -15,6 +15,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.smd.u_journal.navigation.Graph
+import com.smd.u_journal.navigation.Screen
 
 @Composable
 fun RegisterForm(
@@ -35,25 +36,25 @@ fun RegisterForm(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var registrationError by remember { mutableStateOf<String?>(null) }
+    val authState by viewModel.authState.collectAsState(initial = AuthViewModel.AuthState.Loading)
 
         LaunchedEffect(viewModel.authState) {
-        viewModel.authState.collect { state ->
-            when (state) {
+            when (authState) {
                 is AuthViewModel.AuthState.Success -> {
-                    if (state.userId.isNotEmpty()) {
-                        navController.navigate(Graph.AUTH) {
-                            popUpTo(Graph.AUTH) { inclusive = true }
+                    val userId  = (authState as AuthViewModel.AuthState.Success).userId
+                    if (userId.isNotEmpty()) {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
                         }
                     }
                 }
                 is AuthViewModel.AuthState.Error -> {
-                    registrationError = state.message
+                    registrationError = (authState as AuthViewModel.AuthState.Error).message
                 }
                 AuthViewModel.AuthState.Loading -> {
-                    // Show loading indicator
+
                 }
             }
-        }
     }
 
     Column(Modifier.fillMaxWidth()) {

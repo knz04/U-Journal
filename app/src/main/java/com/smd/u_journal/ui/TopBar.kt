@@ -11,6 +11,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,7 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.R
+import com.smd.u_journal.auth.AuthViewModel
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
@@ -37,15 +42,17 @@ import java.util.*
 @Composable
 fun TopBar(
     state: TopBarState,
-    onCloseClick: () -> Unit = {},
-    onBackClick: () -> Unit = {},
-    onImageClick: () -> Unit = {},
+    onCloseClick:    () -> Unit = {},
+    onBackClick:     () -> Unit = {},
+    onImageClick:    () -> Unit = {},
     onFavoriteClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {},
-    onDelete: () -> Unit = {},
-) {
+    onMenuClick:     () -> Unit = {},
+    onDelete:        () -> Unit = {},
+    onLogout:        () -> Unit,               // <- require the parent to provide this
+    ) {
     val isCollapsed = state == TopBarState.COLLAPSED
-    val date = remember { getFormattedDate() }
+    val date        = remember { getFormattedDate() }
+    val viewModel: AuthViewModel = viewModel()
 
     Row(
         modifier = Modifier
@@ -74,7 +81,13 @@ fun TopBar(
         }
 
         if (state != TopBarState.ENTRY_NAV && state != TopBarState.EDIT_ENTRY) {
-            ProfileImage(visible = isCollapsed)
+            ProfileImage(
+                visible  = isCollapsed,
+                onLogout = {
+                    viewModel.signOut()
+                    onLogout()
+                    }
+            )
         }
     }
 }
@@ -158,23 +171,45 @@ private fun AnimatedBar(
 }
 
 @Composable
-private fun ProfileImage(visible: Boolean) {
+fun ProfileImage(
+    visible: Boolean,
+    onLogout: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
         animationSpec = tween(500),
         label = "Profile Alpha Animation"
     )
 
-    Image(
-        painter = painterResource(R.drawable.profile_placeholder),
-        contentDescription = "User Profile",
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .alpha(alpha),
-        contentScale = ContentScale.Crop
-    )
+    Box {
+        Image(
+            painter = painterResource(R.drawable.profile_placeholder),
+            contentDescription = "User Profile",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .alpha(alpha)
+                .clickable { expanded = true },
+            contentScale = ContentScale.Crop
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Logout") },
+                onClick = {
+                    expanded = false
+                    onLogout()
+                }
+            )
+        }
+    }
 }
+
 
 @Composable
 private fun ActionIconsRow(icons: List<IconData>) {
@@ -230,38 +265,38 @@ enum class TopBarState {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true, name = "TopBar - ENTRY_NAV")
-@Composable
-fun PreviewTopBarEntryNav() {
-    TopBar(
-        state = TopBarState.ENTRY_NAV,
-        onBackClick = {},
-        onImageClick = {},
-        onFavoriteClick = {},
-        onMenuClick = {}
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true, name = "TopBar - EDIT_ENTRY")
-@Composable
-fun PreviewTopBarEditEntry() {
-    TopBar(
-        state = TopBarState.EDIT_ENTRY,
-        onBackClick = {},
-        onDelete = {}
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true, name = "TopBar - COLLAPSED")
-@Composable
-fun PreviewTopBarCollapsed() {
-    TopBar(
-        state = TopBarState.COLLAPSED
-    )
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, name = "TopBar - ENTRY_NAV")
+//@Composable
+//fun PreviewTopBarEntryNav() {
+//    TopBar(
+//        state = TopBarState.ENTRY_NAV,
+//        onBackClick = {},
+//        onImageClick = {},
+//        onFavoriteClick = {},
+//        onMenuClick = {}
+//    )
+//}
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, name = "TopBar - EDIT_ENTRY")
+//@Composable
+//fun PreviewTopBarEditEntry() {
+//    TopBar(
+//        state = TopBarState.EDIT_ENTRY,
+//        onBackClick = {},
+//        onDelete = {}
+//    )
+//}
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, name = "TopBar - COLLAPSED")
+//@Composable
+//fun PreviewTopBarCollapsed() {
+//    TopBar(
+//        state = TopBarState.COLLAPSED
+//    )
+//}
 
 
 //@RequiresApi(Build.VERSION_CODES.O)
