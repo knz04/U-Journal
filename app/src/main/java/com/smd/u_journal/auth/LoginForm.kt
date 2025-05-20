@@ -36,14 +36,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.smd.u_journal.R
 import com.smd.u_journal.navigation.Graph
 
 @Composable
 fun LoginForm(
-    navController: NavController,
+    navController: NavHostController,
     viewModel: AuthViewModel
 ) {
     var email by remember { mutableStateOf("") }

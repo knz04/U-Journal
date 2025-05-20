@@ -25,9 +25,7 @@ import com.smd.u_journal.navigation.Screen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen() {
-    val navController = rememberNavController()
-
+fun MainScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopBar(
@@ -71,5 +69,6 @@ fun MainScreen() {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MainScreen()
+    val navController = rememberNavController()
+    MainScreen(navController)
 }

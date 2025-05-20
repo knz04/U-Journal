@@ -41,7 +41,7 @@ fun RegisterForm(
             when (state) {
                 is AuthViewModel.AuthState.Success -> {
                     if (state.userId.isNotEmpty()) {
-                        navController.navigate(Graph.MAIN) {
+                        navController.navigate(Graph.AUTH) {
                             popUpTo(Graph.AUTH) { inclusive = true }
                         }
                     }
@@ -91,7 +91,7 @@ fun RegisterForm(
                 ),
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text("E-mail") },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,

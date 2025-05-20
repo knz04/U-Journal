@@ -30,7 +30,7 @@ fun RootNavigationGraph(navHostController: NavHostController) {
     ) {
         authNavGraph(navHostController)
         composable(route = Graph.MAIN) {
-            MainScreen()
+            MainScreen(navHostController)
         }
     }
 }
