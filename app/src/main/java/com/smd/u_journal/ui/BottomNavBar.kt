@@ -18,29 +18,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.navigation.Screen
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue100
 
 @Composable
-fun BottomNavbar2(
+fun BottomNavBar(
     navController: NavController,
     navBarMode: List<Screen>,
     alwaysShowText: Boolean,
@@ -71,7 +66,7 @@ fun BottomNavbar2(
             navBarMode.forEachIndexed { index, screen ->
                 val isSelected = screen.route == currentRoute
 
-                BottomNavItem2(
+                BottomNavItem(
                     screen = screen,
                     isSelected = isSelected,
                     alwaysShowText = alwaysShowText,
@@ -92,7 +87,7 @@ fun BottomNavbar2(
 }
 
 @Composable
-fun BottomNavItem2(
+fun BottomNavItem(
     screen: Screen,
     isSelected: Boolean,
     alwaysShowText: Boolean = false,

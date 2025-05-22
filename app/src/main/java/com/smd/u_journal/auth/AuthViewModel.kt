@@ -1,5 +1,6 @@
 package com.smd.u_journal.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -7,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.smd.u_journal.util.Users
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,10 +28,13 @@ class AuthViewModel : ViewModel() {
     val authState: StateFlow<AuthState> = _authState
 
     private fun checkCurrentUser() {
-        if (auth.currentUser != null) {
-            _authState.value = AuthState.Success(auth.currentUser!!.uid)
+        auth.currentUser?.let {
+            _authState.value = AuthState.Success(it.uid)
+        } ?: run {
+            _authState.value = AuthState.Error("No current user")
         }
     }
+
 
     init {
         checkCurrentUser()
@@ -49,20 +54,40 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState.Loading
         try {
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+            val firebaseUser = authResult.user
 
-            val user = hashMapOf(
-                "uid" to authResult.user?.uid,
-                "fullName" to fullName,
-                "email" to email,
-                "createdAt" to FieldValue.serverTimestamp()
-            )
+            if (firebaseUser != null) {
+                val newUser = hashMapOf(
+                    "userId" to firebaseUser.uid,
+                    "fullName" to fullName,
+                    "email" to email,
+                    "createdAt" to FieldValue.serverTimestamp()
+                )
 
-            firestore.collection("users")
-                .document(authResult.user!!.uid)
-                .set(user)
-                .await()
+                try {
+                    firestore.collection("users")
+                        .document(firebaseUser.uid)
+                        .set(newUser)
+                        .await()
 
-            _authState.value = AuthState.Success(auth.currentUser!!.uid)
+                    _authState.value = AuthState.Success(firebaseUser.uid)
+                } catch (e: Exception) {
+                    Log.e("FirestoreWrite", "Failed to write user data: ${e.message}")
+                    _authState.value = AuthState.Error("User created but Firestore write failed")
+                }
+
+
+                firestore.collection("users")
+                    .document(firebaseUser.uid)
+                    .set(newUser)
+                    .await()
+
+                _authState.value = AuthState.Success(firebaseUser.uid)
+            } else {
+                _authState.value = AuthState.Error("User creation succeeded but user data is null.")
+            }
+
+
         } catch (e: Exception) {
             auth.currentUser?.delete()?.await()
             _authState.value = AuthState.Error(e.message ?: "Registration failed")

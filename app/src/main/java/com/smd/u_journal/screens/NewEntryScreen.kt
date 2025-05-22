@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.navigation.Screen
-import com.smd.u_journal.ui.BottomNavbar2
+import com.smd.u_journal.ui.BottomNavBar
 import com.smd.u_journal.ui.TopBar
 import com.smd.u_journal.ui.TopBarState
 import com.smd.u_journal.ui.newEntryItems
@@ -34,7 +34,7 @@ fun NewEntryScreen(navController: NavController) {
 
     Scaffold(
         bottomBar = {
-            BottomNavbar2(
+            BottomNavBar(
                 navController = navController,
                 navBarMode = newEntryItems,
                 alwaysShowText = true,

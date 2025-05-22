@@ -18,7 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.auth.AuthViewModel
-import com.smd.u_journal.ui.BottomNavbar2
+import com.smd.u_journal.ui.BottomNavBar
 import com.smd.u_journal.ui.FabState
 import com.smd.u_journal.ui.FloatingActionButton
 import com.smd.u_journal.ui.TopBar
@@ -65,7 +65,7 @@ fun MainScreen(navController: NavHostController) {
             )
         },
         bottomBar = {
-            BottomNavbar2(
+            BottomNavBar(
                 navController = bottomNavController,
                 navBarMode = mainItems,
                 alwaysShowText = false,
