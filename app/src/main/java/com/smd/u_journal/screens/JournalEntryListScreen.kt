@@ -14,20 +14,20 @@ import com.smd.u_journal.ui.components.JournalEntryCard
 
 @Composable
 fun JournalEntryListScreen() {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(dummyEntries) { entry ->
-            JournalEntryCard(
-                journalEntry = entry,
-                dateLabel = "Recently Opened",
-                onClick = {
-                    // TODO: handle click, maybe navigate to detail page
-                }
-            )
-        }
-    }
+//    LazyColumn(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp),
+//        verticalArrangement = Arrangement.spacedBy(16.dp)
+//    ) {
+//        items(dummyEntries) { entry ->
+//            JournalEntryCard(
+//                journalEntry = entry,
+//                dateLabel = "Recently Opened",
+//                onClick = {
+//                    // TODO: handle click, maybe navigate to detail page
+//                }
+//            )
+//        }
+//    }
 }

@@ -25,36 +25,34 @@ import com.smd.u_journal.ui.theme.Blue300
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 import com.smd.u_journal.R
-import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.components.JournalEntryCard
+import com.smd.u_journal.util.Entries
+import com.smd.u_journal.util.EntryRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
-    var userName by remember { mutableStateOf("User") }
+    val userName by remember { mutableStateOf("User") }
+    val viewModel: EntryViewModel = viewModel()
+    val entries by viewModel.entries.collectAsState()
 
     LaunchedEffect(Unit) {
-        val uid = Firebase.auth.currentUser?.uid
-        if (uid != null) {
-            Firebase.firestore.collection("users").document(uid).get()
-                .addOnSuccessListener { doc ->
-                    val fullName = doc.getString("fullName")
-                    if (fullName != null) {
-                        userName = fullName
-                    }
-                }
-        }
+        viewModel.loadEntries()
     }
 
     LazyColumn(
@@ -191,26 +189,35 @@ fun HomeScreen(navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = journalDate,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
 
         // List of Journal Cards
-        items(dummyEntries) { entry ->
+        items(entries) { entry ->
             JournalEntryCard(
-                journalEntry = entry,
-                dateLabel = "Recently Opened",
-                onClick = {
-                    navController.navigate("entry_nav/${entry.date}")
-                }
+                entry = entry,
+                onClick = { /* Handle click */ }
             )
+        }
+    }
+}
+
+class EntryViewModel : ViewModel() {
+    private val repository = EntryRepository
+    private val _entries = MutableStateFlow<List<Entries>>(emptyList())
+    private val _error = MutableStateFlow<String?>(null)
+
+    val entries: StateFlow<List<Entries>> = _entries
+    val error: StateFlow<String?> = _error
+
+    fun loadEntries() {
+        viewModelScope.launch {
+            try {
+                _entries.value = repository.getEntries()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Error loading entries: ${e.localizedMessage}"
+            }
         }
     }
 }

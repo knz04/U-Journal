@@ -13,16 +13,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.smd.u_journal.model.JournalEntry
+import com.smd.u_journal.util.Entries
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun JournalEntryCard(
-    journalEntry: JournalEntry,
-    dateLabel: String,
+    entry: Entries,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -30,6 +34,12 @@ fun JournalEntryCard(
     val cardColor = if (isPressed) Color(0xFF1F1F1F) else Color.White
     val textColorPrimary = if (isPressed) Color(0xFF40C2FF) else Color.Black
     val textColorSecondary = if (isPressed) Color.LightGray else Color.DarkGray
+
+    val dateText = remember(entry.createdAt) {
+        entry.createdAt?.toDate()?.let {
+            SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(it)
+        } ?: "No date"
+    }
 
     Card(
         modifier = Modifier
@@ -57,22 +67,26 @@ fun JournalEntryCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = dateLabel,
+                    text = dateText,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     color = textColorSecondary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (journalEntry.title.length > 24) journalEntry.title.take(24) + "..." else journalEntry.title,
+                    text = entry.title.take(24).let {
+                        if (entry.title.length > 24) "$it..." else it
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = textColorPrimary
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    if (journalEntry.content.length > 24) journalEntry.content.take(30) + "..." else journalEntry.content,                    style = MaterialTheme.typography.bodySmall,
+                    text = entry.content.take(30).let {
+                        if (entry.content.length > 30) "$it..." else it
+                    },
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Normal,
                     color = textColorSecondary
                 )
@@ -81,13 +95,16 @@ fun JournalEntryCard(
             Spacer(modifier = Modifier.width(12.dp))
 
             // Kanan: Gambar
-            Image(
-                painter = painterResource(id = journalEntry.imageRes),
-                contentDescription = "Journal Image",
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
+            entry.imageUrl?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Entry image",
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
         }
     }
 }

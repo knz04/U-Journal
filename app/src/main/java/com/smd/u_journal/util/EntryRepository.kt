@@ -4,6 +4,7 @@ import android.net.Uri
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
@@ -51,4 +52,19 @@ object EntryRepository {
         }
     }
 
+    suspend fun getEntries(): List<Entries> {
+        return try {
+            val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val query = entriesCollection
+                .whereEqualTo("userId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+
+            val snapshot = query.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Entries::class.java)?.copy(id = doc.id)
+            }
+        } catch (e: Exception) {
+            throw e // Or return emptyList() if you prefer
+        }
+    }
 }

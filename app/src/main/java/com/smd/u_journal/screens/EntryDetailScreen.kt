@@ -50,12 +50,12 @@ fun EntryDetailScreen(
             ) {
                 Image(
                     painter = painterResource(id = entry.imageRes),
-                    contentDescription = entry.title,
-                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop, // <--- this crops the image to fill the width
                     modifier = Modifier
-                        .width(250.dp)
-                        .height(250.dp)
-                        .clip(RoundedCornerShape(24.dp))
+                        .fillMaxWidth()
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
             }
 

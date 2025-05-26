@@ -7,14 +7,15 @@ import com.google.firebase.firestore.ServerTimestamp
 
 @Parcelize
 data class Location(
-    val latitude: Double,
-    val longitude: Double,
-    val address: String,
-    val name: String
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val address: String = "",
+    val name: String = ""
 ) : Parcelable
 
 
 data class Entries(
+    val id: String = "",
     val userId: String = "",
     val title: String = "",
     val content: String = "",
@@ -29,5 +30,5 @@ data class Entries(
     val imageUrl: String? = null,
     val imagePath: String? = null
 ) {
-    constructor() : this("", "", "", null, null, null, null, null)
+    constructor() : this("", "", "", "", null, null, null, null, null)
 }
