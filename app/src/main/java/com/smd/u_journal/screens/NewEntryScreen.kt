@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.smd.u_journal.util.EntryRepository
@@ -40,22 +43,33 @@ import com.smd.u_journal.ui.newEntryItems
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Black
 import com.smd.u_journal.ui.theme.Blue200
+import com.smd.u_journal.util.Location
 import kotlinx.coroutines.launch
 import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NewEntryScreen(navController: NavController) {
+fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = viewModel()) {
     val coroutineScope = rememberCoroutineScope()
-    var text by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
-    var title by remember { mutableStateOf("") }
     var selectedIndex by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val navBackStackEntry = navController.currentBackStackEntry
+    val savedStateHandle = navBackStackEntry?.savedStateHandle
+    var title by viewModel::title
+    var text by viewModel::text
+    var imageUri by viewModel::imageUri
+    var selectedLocation by viewModel::selectedLocation
 
     BackHandler {
         navController.popBackStack()
+    }
+
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.getLiveData<Location>("location")?.observeForever { loc ->
+            selectedLocation = loc
+            savedStateHandle.remove<Location>("location")
+        }
     }
 
     val pickMedia = rememberLauncherForActivityResult(
@@ -123,7 +137,7 @@ fun NewEntryScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     coroutineScope.launch {
-                        val result = EntryRepository.addEntry(title, text, imageUri)
+                        val result = EntryRepository.addEntry(title, text, imageUri, selectedLocation)
                         if (result.isSuccess) {
                             title = ""
                             text = ""
@@ -238,4 +252,11 @@ fun NewEntryScreen(navController: NavController) {
             }
         }
     }
+}
+
+class NewEntryViewModel : ViewModel() {
+    var title by mutableStateOf("")
+    var text by mutableStateOf("")
+    var imageUri by mutableStateOf<Uri?>(null)
+    var selectedLocation by mutableStateOf<Location?>(null)
 }

@@ -1,16 +1,18 @@
 package com.smd.u_journal.util
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ServerTimestamp
 
+@Parcelize
 data class Location(
-    val latitude: Double? = null,
-    val longitude: Double? = null,
-    val address: String? = null,
-    val name: String? = null,
-) {
-    constructor() : this(null, null, null, null)
-}
+    val latitude: Double,
+    val longitude: Double,
+    val address: String,
+    val name: String
+) : Parcelable
+
 
 data class Entries(
     val userId: String = "",

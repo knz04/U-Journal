@@ -16,9 +16,13 @@ import androidx.navigation.NavController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import com.smd.u_journal.ui.TopBar
 import com.smd.u_journal.ui.TopBarState
+import com.smd.u_journal.util.Location
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -27,6 +31,8 @@ fun AddLocationScreen(navController: NavController) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition(initialPosition, 3f, 0f, 0f)
     }
+    val markerState = remember { MarkerState() }
+
 
     var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
 
@@ -35,7 +41,21 @@ fun AddLocationScreen(navController: NavController) {
             TopBar(
                 state = TopBarState.NEW_ENTRY,
                 onBackClick = { navController.popBackStack() },
-                onSave = { TODO() }
+                onSave = {
+                    selectedLocation?.let {
+                        val location = Location(
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            address = "Some address", // You can use Geocoder here
+                            name = "Selected point"
+                        )
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("location", location)
+                        navController.popBackStack()
+                    }
+                }
+
             )
         }
     ) { paddingValues ->
@@ -44,24 +64,24 @@ fun AddLocationScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 onMapClick = { latLng ->
                     selectedLocation = latLng
-                    // You can save latLng to your ViewModel or pass it back to another screen
+                    markerState.position = latLng
                 }
-            )
+            ) {
+                selectedLocation?.let {
+                    Marker(
+                        state = markerState,
+                        title = "Selected Location"
+                    )
+                }
 
-            selectedLocation?.let { location ->
-                Text(
-                    text = "Selected: ${location.latitude}, ${location.longitude}",
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
+
         }
     }
 }

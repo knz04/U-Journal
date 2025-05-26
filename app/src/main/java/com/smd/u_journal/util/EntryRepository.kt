@@ -15,7 +15,8 @@ object EntryRepository {
     suspend fun addEntry(
         title: String,
         content: String,
-        imageUri: Uri?
+        imageUri: Uri?,
+        location: Location? // Add location parameter
     ): Result<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: ""
@@ -39,7 +40,8 @@ object EntryRepository {
                 createdAt = Timestamp.now(),
                 updatedAt = Timestamp.now(),
                 imageUrl = imageUrl,
-                imagePath = imagePath
+                imagePath = imagePath,
+                location = location // Save location
             )
 
             entriesCollection.add(entry).await()
@@ -48,4 +50,5 @@ object EntryRepository {
             Result.failure(e)
         }
     }
+
 }
