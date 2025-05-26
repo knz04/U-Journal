@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.smd.u_journal.R
 import com.smd.u_journal.util.EntryRepository
 import com.smd.u_journal.ui.BottomNavBar
 import com.smd.u_journal.ui.TopBar
@@ -199,32 +201,46 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            BasicTextField(
-                value = title,
-                onValueChange = { title = it },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleMedium.copy(
-                    textAlign = TextAlign.Start,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold
-                ),
-                decorationBox = { innerTextField ->
-                    Box(Modifier.fillMaxWidth()) {
-                        if (title.isEmpty()) {
-                            Text(
-                                text = "Untitled",
-                                style = MaterialTheme.typography.titleMedium,
-                                textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                fontWeight = FontWeight.Bold
-                            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (selectedLocation != null) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.atlas),
+                        contentDescription = "Location selected",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 8.dp)
+                    )
+                }
+                BasicTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.titleMedium.copy(
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    decorationBox = { innerTextField ->
+                        Box(Modifier.fillMaxWidth()) {
+                            if (title.isEmpty()) {
+                                Text(
+                                    text = "Untitled",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    textAlign = TextAlign.Start,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            innerTextField()
                         }
-                        innerTextField()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
