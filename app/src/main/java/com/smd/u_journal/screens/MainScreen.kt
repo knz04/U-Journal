@@ -42,7 +42,6 @@ fun MainScreen(navController: NavHostController) {
         }
     }
 
-
     Scaffold(
         topBar = {
             TopBar(

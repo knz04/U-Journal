@@ -23,12 +23,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.R
 import com.smd.u_journal.auth.AuthViewModel
 import com.smd.u_journal.ui.theme.Bg100
@@ -48,7 +46,8 @@ fun TopBar(
     onFavoriteClick: () -> Unit = {},
     onMenuClick:     () -> Unit = {},
     onDelete:        () -> Unit = {},
-    onLogout:        () -> Unit,               // <- require the parent to provide this
+    onSave:        () -> Unit = {},
+    onLogout:        () -> Unit = {},               // <- require the parent to provide this
     ) {
     val isCollapsed = state == TopBarState.COLLAPSED
     val date        = remember { getFormattedDate() }
@@ -76,7 +75,11 @@ fun TopBar(
             )
 
             TopBarState.COLLAPSED -> CollapsedBar()
-            TopBarState.NEW_ENTRY -> TODO()
+            TopBarState.NEW_ENTRY -> AddEntryBar(
+                date = date,
+                onBackClick = onBackClick,
+                onSave = onSave
+            )
             TopBarState.EXPANDED -> TODO()
         }
 
@@ -97,7 +100,7 @@ private fun EntryNavigationBar(
     onBackClick: () -> Unit,
     onImageClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
 ) {
     AnimatedBar(width = 360.dp) {
         Row(
@@ -113,6 +116,25 @@ private fun EntryNavigationBar(
                     IconData(R.drawable.ic_more, "More", onMenuClick)
                 )
             )
+        }
+    }
+}
+
+@Composable
+private fun AddEntryBar(
+    date: String,
+    onBackClick: () -> Unit,
+    onSave:        () -> Unit = {},
+) {
+    AnimatedBar(width = 360.dp) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            NavigationIcon(R.drawable.ic_back, "Back", onBackClick)
+            Text(text = date, color = Blue100, fontSize = 14.sp)
+            NavigationIcon(R.drawable.check, "Save", onSave)
         }
     }
 }

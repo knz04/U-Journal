@@ -17,7 +17,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Blue100
@@ -25,9 +24,16 @@ import com.smd.u_journal.ui.theme.Blue200
 import com.smd.u_journal.ui.theme.Blue300
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.foundation.Image
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.smd.u_journal.R
 import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.components.JournalEntryCard
@@ -36,6 +42,20 @@ import com.smd.u_journal.ui.components.JournalEntryCard
 @Composable
 fun HomeScreen(navController: NavController) {
     val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
+    var userName by remember { mutableStateOf("User") }
+
+    LaunchedEffect(Unit) {
+        val uid = Firebase.auth.currentUser?.uid
+        if (uid != null) {
+            Firebase.firestore.collection("users").document(uid).get()
+                .addOnSuccessListener { doc ->
+                    val fullName = doc.getString("fullName")
+                    if (fullName != null) {
+                        userName = fullName
+                    }
+                }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -54,7 +74,7 @@ fun HomeScreen(navController: NavController) {
                     fontWeight = FontWeight.Light
                 )
                 Text(
-                    text = "Welcome, Mr Black!",
+                    text = "Welcome, $userName!",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )

@@ -40,7 +40,9 @@ fun BottomNavBar(
     navBarMode: List<Screen>,
     alwaysShowText: Boolean,
     selected: Int,
-    onItemSelected: (Int) -> Unit
+    onItemSelected: (Int) -> Unit = {},
+    onAddImage: () -> Unit = {},
+    onAddLocation: () -> Unit = {}
 )
  {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -60,7 +62,7 @@ fun BottomNavBar(
                 .background(Black)
                 .height(72.dp)
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             navBarMode.forEachIndexed { index, screen ->
@@ -72,14 +74,22 @@ fun BottomNavBar(
                     alwaysShowText = alwaysShowText,
                     onClick = {
                         onItemSelected(index)
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+
+                        when (screen) {
+                            Screen.AddImage -> onAddImage()
+                            Screen.AddLocation -> onAddLocation()
+                            else -> {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     }
+
                 )
             }
         }

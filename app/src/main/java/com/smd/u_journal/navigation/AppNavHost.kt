@@ -43,16 +43,9 @@ fun AppNavHost(navController: NavHostController) {
             NewEntryScreen(navController)
         }
 
-//        // etc: EntryDetail, Edit, AddImage, AddLocation…
-//        composable(Screen.Date.route) {
-//            DateScreen(navController)
-//        }
-//        composable(Screen.Media.route) {
-//            MediaScreen(navController)
-//        }
-//        composable(Screen.Atlas.route) {
-//            AtlasScreen(navController)
-//        }
+        composable("location") {
+            AddLocationScreen(navController)
+        }
     }
 }
 
