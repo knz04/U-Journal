@@ -173,6 +173,10 @@ val newEntryItems = listOf(
     Screen.AddLocation
 )
 
+val entryDetails = listOf(
+    Screen.EntryDetail
+)
+
 //@Preview
 //@Composable
 //fun BottomNavBar2Preview() {

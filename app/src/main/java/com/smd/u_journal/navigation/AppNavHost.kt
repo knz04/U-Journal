@@ -27,22 +27,23 @@ fun AppNavHost(navController: NavHostController) {
     }
 
     NavHost(navController, startDestination = start) {
-        // --- AUTH FLOW ---
         composable("onboarding") {
             OnboardingScreen(navController)
         }
-
-        // --- APP FLOW (tabs + entry screens) ---
-        // “Home” is actually your full chrome + content
         composable("main") {
-            MainScreen(navController)
+            MainScreen(
+                navController = navController,
+                onNavigateToEntryDetails = { entryId ->
+                navController.navigate("entry_details/$entryId")
+            })
         }
-
-        // entry screens (launched by FAB or deep links)
+        composable("entry_details/{entryId}") { backStackEntry ->
+            val entryId = backStackEntry.arguments?.getString("entryId") ?: return@composable
+            EntryDetailScreen(entryId, navController)
+        }
         composable("new") {
             NewEntryScreen(navController)
         }
-
         composable("location") {
             AddLocationScreen(navController)
         }

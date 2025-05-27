@@ -45,7 +45,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    onJournalEntryClick: (String) -> Unit
+) {
     val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
     val userName by remember { mutableStateOf("User") }
     val viewModel: EntryViewModel = viewModel()
@@ -193,10 +196,13 @@ fun HomeScreen(navController: NavController) {
         }
 
         // List of Journal Cards
+        // In HomeScreen's LazyColumn items
         items(entries) { entry ->
             JournalEntryCard(
                 entry = entry,
-                onClick = { /* Handle click */ }
+                onClick = {
+                    onJournalEntryClick(entry.id)
+                }
             )
         }
     }

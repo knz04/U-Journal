@@ -67,4 +67,14 @@ object EntryRepository {
             throw e // Or return emptyList() if you prefer
         }
     }
+
+    suspend fun getEntryById(entryId: String): Entries? {
+        return try {
+            val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val document = entriesCollection.document(entryId).get().await()
+            document.toObject(Entries::class.java)?.copy(id = document.id)
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

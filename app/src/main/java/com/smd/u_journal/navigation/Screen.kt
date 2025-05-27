@@ -20,8 +20,8 @@ sealed class Screen(
 
     // ENTRY
     object NewEntry : Screen("new_entry")
-    object EntryDetail : Screen("entry_detail/{selectedDate}") {
-        fun createRoute(date: String) = "entry_detail/$date"
+    object EntryDetail : Screen("entry_details/{entryId}") {  // Plural + entryId
+        fun createRoute(entryId: String) = "entry_details/$entryId"
     }
     object Edit : Screen("edit/{entryId}") {
         fun createRoute(entryId: String) = "edit/$entryId"
