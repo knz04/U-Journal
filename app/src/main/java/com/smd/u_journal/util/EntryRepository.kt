@@ -77,4 +77,21 @@ object EntryRepository {
             throw e
         }
     }
+
+    suspend fun getEntriesWithImages(): List<Entries> {
+        return try {
+            val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+            val query = entriesCollection
+                .whereEqualTo("userId", userId)
+                .whereNotEqualTo("imageUrl", null)  // Only get entries with images
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+
+            val snapshot = query.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Entries::class.java)?.copy(id = doc.id)
+            }
+        } catch (e: Exception) {
+            emptyList()  // Return empty list instead of throwing
+        }
+    }
 }
