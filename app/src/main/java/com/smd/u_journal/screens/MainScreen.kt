@@ -90,14 +90,24 @@ fun MainScreen(
                 }
             )
             }
-            composable(Screen.Date.route) { DateScreen(bottomNavController) }
+            composable(Screen.Date.route) { DateScreen(
+                navController = bottomNavController,
+                onJournalEntryClick = { entryId ->
+                    onNavigateToEntryDetails(entryId) // Invoke the hoisted lambda
+                }
+            ) }
             composable(Screen.Media.route) { MediaScreen(
                 navController = bottomNavController,
                 onJournalEntryClick = { entryId ->
                     onNavigateToEntryDetails(entryId) // Invoke the hoisted lambda
                 }
             ) }
-            composable(Screen.Atlas.route) { AtlasScreen(bottomNavController) }
+            composable(Screen.Atlas.route) { AtlasScreen(
+                navController = bottomNavController,
+                onJournalEntryClick = { entryId ->
+                    onNavigateToEntryDetails(entryId) // Invoke the hoisted lambda
+                }
+            ) }
         }
     }
 }
