@@ -255,6 +255,51 @@ fun EditScreen(
         )
     }
 
+    if (showDeleteDialog) {
+        AlertDialog(
+            containerColor = Bg100,
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(
+                    "Delete Entry",
+                    color = Black,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    "Are you sure you want to delete this entry? This action cannot be undone.",
+                    color = Black
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val entry = entryState.value
+                    if (entry != null) {
+                        coroutineScope.launch {
+                            val result = EntryRepository.deleteEntry(entry)
+                            if (result.isSuccess) {
+                                showDeleteDialog = false
+                                navController.popBackStack()
+                                navController.popBackStack()
+                            } else {
+                                // handle error
+                            }
+                        }
+                    }
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel", color = Blue200)
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopBar(
