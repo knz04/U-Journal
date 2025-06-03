@@ -16,8 +16,8 @@ import com.smd.u_journal.ui.theme.Blue100
 @Composable
 fun FloatingActionButton(
     fabState: FabState,
-    onAddClick: () -> Unit,
-    onEditClick: () -> Unit
+    onAddClick: () -> Unit = {},
+    onEditClick: () -> Unit = {}
 ) {
     val icon = when (fabState) {
         FabState.ADD -> R.drawable.add

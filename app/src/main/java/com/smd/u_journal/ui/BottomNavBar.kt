@@ -39,7 +39,6 @@ fun BottomNavBar(
     navController: NavController,
     navBarMode: List<Screen>,
     alwaysShowText: Boolean,
-    selected: Int,
     onItemSelected: (Int) -> Unit = {},
     onAddImage: () -> Unit = {},
     onAddLocation: () -> Unit = {}

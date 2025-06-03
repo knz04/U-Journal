@@ -3,6 +3,7 @@ package com.smd.u_journal.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -13,19 +14,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.smd.u_journal.ui.BottomNavBar
+import com.smd.u_journal.R
 import com.smd.u_journal.ui.FabState
 import com.smd.u_journal.ui.TopBar
 import com.smd.u_journal.ui.TopBarState
 import com.smd.u_journal.util.Entries
 import com.smd.u_journal.util.EntryRepository.getEntryById
 import com.smd.u_journal.ui.FloatingActionButton
-import com.smd.u_journal.ui.entryDetails
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -66,8 +68,10 @@ fun EntryDetailScreen(
         floatingActionButton = {
             FloatingActionButton(
                 fabState = FabState.EDIT,
-                onAddClick = { TODO() }
-            ) { }
+                onEditClick = {
+                    navController.navigate("edit/${entryId}")
+                },
+            )
         }
     ) { paddingValues ->
         Column(
@@ -75,8 +79,7 @@ fun EntryDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+                .padding(horizontal = 32.dp, vertical = 16.dp)
         ) {
             when {
                 isLoading.value -> {
@@ -94,8 +97,6 @@ fun EntryDetailScreen(
                 entryState.value != null -> {
                     val entry = entryState.value!!
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     entry.imageUrl?.let {
                         Box(
                             modifier = Modifier.fillMaxWidth(),
@@ -111,14 +112,33 @@ fun EntryDetailScreen(
                                     .clip(RoundedCornerShape(12.dp))
                             )
                         }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    entry.location?.let { location ->
 
-                        Spacer(modifier = Modifier.height(36.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.atlas),
+                                contentDescription = "Location selected",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .padding(end = 8.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = location.name.ifBlank { location.address },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.Gray
+                            )
+                        }
                     }
 
                     Text(
                         text = entry.createdAt?.toDate()?.toString() ?: "",
                         style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -128,7 +148,6 @@ fun EntryDetailScreen(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -137,7 +156,6 @@ fun EntryDetailScreen(
                         text = entry.content,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
 

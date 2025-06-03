@@ -1,6 +1,7 @@
 package com.smd.u_journal.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.model.dummyEntries
@@ -114,6 +116,8 @@ private fun MonthView(
     val daysInMonth = getDaysInMonth(month, year)
     val firstDayOfMonth = getFirstDayOfMonth(month, year)
 
+    var selectedEntries by remember { mutableStateOf<List<Entries>?>(null) }
+
     val entriesMap = entries
         .filter { entry ->
             entry.createdAt?.toDate()?.let { date ->
@@ -121,12 +125,13 @@ private fun MonthView(
                 calendar.get(Calendar.MONTH) == month && calendar.get(Calendar.YEAR) == year
             } == true
         }
-        .associateBy { entry ->
+        .groupBy { entry ->
             entry.createdAt?.toDate()?.let { date ->
                 val calendar = Calendar.getInstance().apply { time = date }
                 calendar.get(Calendar.DAY_OF_MONTH)
             }
         }
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -169,12 +174,12 @@ private fun MonthView(
                     for (j in 1..7) {
                         val cellIndex = i * 7 + j
                         if (cellIndex >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                            val entry = entriesMap[dayCounter]
-                            if (entry != null) {
+                            val dayEntries = entriesMap[dayCounter]
+                            if (!dayEntries.isNullOrEmpty()) {
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
-                                        .clickable { onEntryClick(entry) },
+                                        .clickable { selectedEntries = dayEntries },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -207,5 +212,36 @@ private fun MonthView(
             }
         }
     }
-}
 
+    selectedEntries?.let { entriesForDay ->
+        Dialog(onDismissRequest = { selectedEntries = null }) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .background(Color.White.copy(alpha = 0.95f), shape = MaterialTheme.shapes.medium)
+                    .padding(16.dp)
+            ) {
+                Text("Select Entry", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                entriesForDay.forEach { entry ->
+                    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                        Text(text = entry.title, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Button(
+                            onClick = {
+                                onEntryClick(entry)
+                                selectedEntries = null
+                            },
+                            modifier = Modifier.align(Alignment.End),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
+                            Text("View", color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

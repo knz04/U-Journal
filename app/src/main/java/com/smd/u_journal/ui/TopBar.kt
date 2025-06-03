@@ -71,7 +71,8 @@ fun TopBar(
             TopBarState.EDIT_ENTRY -> EditEntryBar(
                 date = date,
                 onBackClick = onBackClick,
-                onDelete = onDelete
+                onDelete = onDelete,
+                onSave = onSave,
             )
 
             TopBarState.COLLAPSED -> CollapsedBar()
@@ -143,20 +144,42 @@ private fun AddEntryBar(
 private fun EditEntryBar(
     date: String,
     onBackClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onSave: () -> Unit = {},
 ) {
     AnimatedBar(width = 360.dp) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Back button on the left
             NavigationIcon(R.drawable.ic_back, "Back", onBackClick)
-            Text(text = date, color = Blue100, fontSize = 14.sp)
-            NavigationIcon(R.drawable.delete, "Delete", onDelete)
+
+            // Spacer to push the text and buttons apart
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Centered date text with fixed width to keep it centered
+            Box(
+                modifier = Modifier.width(150.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = date, color = Blue100, fontSize = 14.sp)
+            }
+
+            // Spacer to push buttons to the right
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Group delete and save buttons on the right
+            Row {
+                NavigationIcon(R.drawable.delete, "Delete", onDelete)
+                Spacer(modifier = Modifier.width(8.dp))
+                NavigationIcon(R.drawable.check, "Save", onSave)
+            }
         }
     }
 }
+
+
 
 @Composable
 private fun CollapsedBar() {

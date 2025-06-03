@@ -47,6 +47,10 @@ fun AppNavHost(navController: NavHostController) {
         composable("location") {
             AddLocationScreen(navController)
         }
+        composable("edit/{entryId}") { backStackEntry ->
+            val entryId = backStackEntry.arguments?.getString("entryId") ?: return@composable
+            EditScreen(entryId, navController)
+        }
     }
 }
 

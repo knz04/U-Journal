@@ -73,7 +73,6 @@ fun MainScreen(
                 navController = bottomNavController,
                 navBarMode = mainItems,
                 alwaysShowText = false,
-                selected = selectedIndex,
                 onItemSelected = { selectedIndex = it }
             )
         }

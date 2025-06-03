@@ -17,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -54,7 +54,7 @@ import java.io.File
 fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = viewModel()) {
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var showImageSourceDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val navBackStackEntry = navController.currentBackStackEntry
     val savedStateHandle = navBackStackEntry?.savedStateHandle
@@ -62,6 +62,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
     var text by viewModel::text
     var imageUri by viewModel::imageUri
     var selectedLocation by viewModel::selectedLocation
+    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
     BackHandler {
         navController.popBackStack()
@@ -69,17 +70,19 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
 
     LaunchedEffect(savedStateHandle) {
         savedStateHandle?.getLiveData<Location>("location")?.observeForever { loc ->
+            Log.d("NewEntryScreen", "Received location from savedStateHandle: $loc")
             selectedLocation = loc
             savedStateHandle.remove<Location>("location")
         }
     }
 
-    val pickMedia = rememberLauncherForActivityResult(
+
+
+    val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-            val inputStream = context.contentResolver.openInputStream(uri)
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
             val filename = "entry_${System.currentTimeMillis()}.jpg"
             val file = File(context.filesDir, filename)
             inputStream?.use { input ->
@@ -88,13 +91,55 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                 }
             }
             imageUri = Uri.fromFile(file)
-        } else {
-            Log.d("PhotoPicker", "No media selected")
         }
     }
 
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && cameraImageUri != null) {
+            imageUri = cameraImageUri
+        }
+    }
+
+    fun createImageFileUri(): Uri {
+        val filename = "entry_${System.currentTimeMillis()}.jpg"
+        val file = File(context.filesDir, filename)
+        return FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+    }
+
     val onAddImageClick = {
-        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        showImageSourceDialog = true
+    }
+
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            title = { Text("Add Image") },
+            text = {
+                Column {
+                    TextButton(onClick = {
+                        val uri = createImageFileUri()
+                        cameraImageUri = uri
+                        cameraLauncher.launch(uri)
+                        showImageSourceDialog = false
+                    }) {
+                        Text("Take Photo")
+                    }
+                    TextButton(onClick = {
+                        galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        showImageSourceDialog = false
+                    }) {
+                        Text("Pick from Gallery")
+                    }
+                }
+            },
+            confirmButton = {}
+        )
     }
 
     if (showDialog) {
@@ -118,11 +163,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(32.dp))
-                            .border(
-                                width = 1.dp,
-                                color = Color(0xFFE2E8F0),
-                                shape = RoundedCornerShape(32.dp)
-                            ),
+                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(32.dp)),
                         singleLine = true,
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
@@ -145,8 +186,6 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                             text = ""
                             showDialog = false
                             navController.popBackStack()
-                        } else {
-                            // handle error (e.g., show a snackbar)
                         }
                     }
                 }) {
@@ -155,13 +194,15 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
             },
         )
     }
+
+
+
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 navController = navController,
                 navBarMode = newEntryItems,
                 alwaysShowText = true,
-                selected = selectedIndex,
                 onAddImage = onAddImageClick,
                 onAddLocation = {
                     navController.navigate("location")
@@ -192,7 +233,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                 Image(
                     painter = rememberAsyncImagePainter(imageUri),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop, // <--- this crops the image to fill the width
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)
@@ -205,6 +246,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Spacer(modifier = Modifier.height(12.dp))
                 if (selectedLocation != null) {
                     Icon(
                         painter = painterResource(id = R.drawable.atlas),
@@ -245,8 +287,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopStart
             ) {
                 if (text.isEmpty()) {
@@ -269,6 +310,7 @@ fun NewEntryScreen(navController: NavController, viewModel: NewEntryViewModel = 
         }
     }
 }
+
 
 class NewEntryViewModel : ViewModel() {
     var title by mutableStateOf("")
