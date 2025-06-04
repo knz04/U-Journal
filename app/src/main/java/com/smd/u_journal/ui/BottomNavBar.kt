@@ -171,19 +171,3 @@ val newEntryItems = listOf(
     Screen.AddImage,
     Screen.AddLocation
 )
-
-val entryDetails = listOf(
-    Screen.EntryDetail
-)
-
-//@Preview
-//@Composable
-//fun BottomNavBar2Preview() {
-//    val navController = rememberNavController()
-//    val alwaysShowText = true
-//    BottomNavbar2(
-//        navController = navController,
-//        navBarMode = newEntryItems,
-//        alwaysShowText = alwaysShowText
-//    )
-//}

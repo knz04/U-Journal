@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Blue100
@@ -29,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
@@ -53,9 +53,18 @@ fun HomeScreen(
     val userName by remember { mutableStateOf("User") }
     val viewModel: EntryViewModel = viewModel()
     val entries by viewModel.entries.collectAsState()
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.loadEntries()
+    }
+
+    val filteredEntries = remember(searchQuery, entries) {
+        if (searchQuery.isBlank()) entries
+        else entries.filter {
+            it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.content.contains(searchQuery, ignoreCase = true)
+        }
     }
 
     LazyColumn(
@@ -85,8 +94,8 @@ fun HomeScreen(
         // Search Bar
         item {
             TextField(
-                value = "",
-                onValueChange = {},
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
                 placeholder = {
                     Text("Search", color = Color(0xFF747474), fontWeight = FontWeight.Normal, style = MaterialTheme.typography.bodySmall)
                 },
@@ -101,6 +110,10 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .height(45.dp)
                     .clip(RoundedCornerShape(24.dp)),
+                textStyle = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.Normal
+                ),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = Color.Black,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -195,14 +208,11 @@ fun HomeScreen(
             }
         }
 
-        // List of Journal Cards
-        // In HomeScreen's LazyColumn items
-        items(entries) { entry ->
+        // Filtered List of Journal Cards
+        items(filteredEntries) { entry ->
             JournalEntryCard(
                 entry = entry,
-                onClick = {
-                    onJournalEntryClick(entry.id)
-                }
+                onClick = { onJournalEntryClick(entry.id) }
             )
         }
     }
@@ -227,9 +237,3 @@ class EntryViewModel : ViewModel() {
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeScreen()
-//}

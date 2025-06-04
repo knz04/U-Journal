@@ -3,7 +3,6 @@ package com.smd.u_journal.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -58,12 +57,6 @@ fun EntryDetailScreen(
                     navController.popBackStack()
                 }
             )
-        },
-        bottomBar = {
-//            BottomNavBar(
-//                navController = ,
-//                navBarMode = entryDetails
-//            )
         },
         floatingActionButton = {
             FloatingActionButton(

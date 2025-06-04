@@ -35,12 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.google.rpc.context.AttributeContext.Auth
 import com.smd.u_journal.R
-import com.smd.u_journal.navigation.Screen
 
 @Composable
 fun LoginForm(
@@ -119,9 +116,11 @@ fun LoginForm(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Row(modifier = Modifier .fillMaxWidth(),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -133,7 +132,8 @@ fun LoginForm(
                         uncheckedColor = Color(0xFF64748B)
                     )
                 )
-                Text(text = "Remember me",
+                Text(
+                    text = "Remember me",
                     color = Color(0xFF64748B),
                     fontWeight = FontWeight(weight = 600)
                 )
@@ -155,8 +155,9 @@ fun LoginForm(
             Text("Login")
         }
         Spacer(modifier = Modifier.height(36.dp))
-        Row(modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             Alignment.CenterVertically
         ) {
@@ -180,8 +181,9 @@ fun LoginForm(
             )
         }
         Spacer(modifier = Modifier.height(36.dp))
-        Row(modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
@@ -247,12 +249,3 @@ fun LoginForm(
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun LoginFormPreview() {
-//    LoginForm(
-//        navController = TODO(),
-//        viewModel = TODO()
-//    )
-//}

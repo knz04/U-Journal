@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.smd.u_journal.auth.AuthViewModel
 import com.smd.u_journal.screens.*
 
@@ -19,7 +18,6 @@ fun AppNavHost(navController: NavHostController) {
     val authVm: AuthViewModel = viewModel()
     val authState by authVm.authState.collectAsState(initial = AuthViewModel.AuthState.Loading)
 
-    // pick start destination
     val start = if (authState is AuthViewModel.AuthState.Success) {
         "main"
     } else {

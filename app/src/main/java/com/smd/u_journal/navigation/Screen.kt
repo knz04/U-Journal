@@ -5,8 +5,8 @@ import com.smd.u_journal.R
 
 sealed class Screen(
     val route: String,
-    @DrawableRes val iconRes: Int = 0, // Default value for non-nav items
-    val title: String = "" // Default value for non-nav items
+    @DrawableRes val iconRes: Int = 0,
+    val title: String = ""
 ) {
     // AUTH
     object Onboarding : Screen("onboarding")

@@ -109,14 +109,3 @@ fun OnboardingScreen(navController: NavHostController) {
         }
     }
 }
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Composable
-//@Preview(
-//    name = "Portrait Preview",
-//    showBackground = true,
-//    showSystemUi = true
-//)
-//fun AuthScreenPreview() {
-//    OnboardingScreen()
-//}

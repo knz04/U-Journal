@@ -19,7 +19,7 @@ object EntryRepository {
         title: String,
         content: String,
         imageUri: Uri?,
-        location: Location? // Add location parameter
+        location: Location?
     ): Result<Unit> {
         return try {
             val userId = auth.currentUser?.uid ?: ""

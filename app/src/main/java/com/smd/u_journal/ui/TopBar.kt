@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +39,6 @@ import java.util.*
 @Composable
 fun TopBar(
     state: TopBarState,
-    onCloseClick:    () -> Unit = {},
     onBackClick:     () -> Unit = {},
     onImageClick:    () -> Unit = {},
     onFavoriteClick: () -> Unit = {},
@@ -65,7 +63,8 @@ fun TopBar(
                 onBackClick = onBackClick,
                 onImageClick = onImageClick,
                 onFavoriteClick = onFavoriteClick,
-                onMenuClick = onMenuClick
+                onMenuClick = onMenuClick,
+                state = state
             )
 
             TopBarState.EDIT_ENTRY -> EditEntryBar(
@@ -73,13 +72,15 @@ fun TopBar(
                 onBackClick = onBackClick,
                 onDelete = onDelete,
                 onSave = onSave,
+                state = state
             )
 
-            TopBarState.COLLAPSED -> CollapsedBar()
+            TopBarState.COLLAPSED -> CollapsedBar(state)
             TopBarState.NEW_ENTRY -> AddEntryBar(
                 date = date,
                 onBackClick = onBackClick,
-                onSave = onSave
+                onSave = onSave,
+                state = state
             )
             TopBarState.EXPANDED -> TODO()
         }
@@ -98,12 +99,13 @@ fun TopBar(
 
 @Composable
 private fun EntryNavigationBar(
+    state: TopBarState,
     onBackClick: () -> Unit,
     onImageClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onMenuClick: () -> Unit,
 ) {
-    AnimatedBar(width = 360.dp) {
+    AnimatedBar(state = state) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -123,11 +125,12 @@ private fun EntryNavigationBar(
 
 @Composable
 private fun AddEntryBar(
+    state: TopBarState,
     date: String,
     onBackClick: () -> Unit,
     onSave:        () -> Unit = {},
 ) {
-    AnimatedBar(width = 360.dp) {
+    AnimatedBar(state = state) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -142,12 +145,13 @@ private fun AddEntryBar(
 
 @Composable
 private fun EditEntryBar(
+    state: TopBarState,
     date: String,
     onBackClick: () -> Unit,
     onDelete: () -> Unit,
     onSave: () -> Unit = {},
 ) {
-    AnimatedBar(width = 360.dp) {
+    AnimatedBar(state = state) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -182,8 +186,8 @@ private fun EditEntryBar(
 
 
 @Composable
-private fun CollapsedBar() {
-    AnimatedBar(width = 172.dp) {
+private fun CollapsedBar(state: TopBarState) {
+    AnimatedBar(state= state) {
         Text(
             text = "U-Journal",
             style = MaterialTheme.typography.titleMedium,
@@ -194,13 +198,21 @@ private fun CollapsedBar() {
 
 @Composable
 private fun AnimatedBar(
-    width: Dp,
+    state: TopBarState,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val targetWidth = when (state) {
+        TopBarState.COLLAPSED -> 172.dp
+        TopBarState.ENTRY_NAV,
+        TopBarState.EDIT_ENTRY,
+        TopBarState.NEW_ENTRY -> 360.dp
+        else -> 0.dp
+    }
+
     val animatedWidth by animateDpAsState(
-        targetValue = width,
-        animationSpec = tween(500),
-        label = "Bar Width Animation"
+        targetValue = targetWidth,
+        animationSpec = tween(durationMillis = 500),
+        label = "Animated TopBar Width"
     )
 
     Box(
@@ -308,223 +320,3 @@ enum class TopBarState {
     ENTRY_NAV,
     EDIT_ENTRY
 }
-
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, name = "TopBar - ENTRY_NAV")
-//@Composable
-//fun PreviewTopBarEntryNav() {
-//    TopBar(
-//        state = TopBarState.ENTRY_NAV,
-//        onBackClick = {},
-//        onImageClick = {},
-//        onFavoriteClick = {},
-//        onMenuClick = {}
-//    )
-//}
-//
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, name = "TopBar - EDIT_ENTRY")
-//@Composable
-//fun PreviewTopBarEditEntry() {
-//    TopBar(
-//        state = TopBarState.EDIT_ENTRY,
-//        onBackClick = {},
-//        onDelete = {}
-//    )
-//}
-//
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, name = "TopBar - COLLAPSED")
-//@Composable
-//fun PreviewTopBarCollapsed() {
-//    TopBar(
-//        state = TopBarState.COLLAPSED
-//    )
-//}
-
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Composable
-//fun TopBar(
-//    state: TopBarState,
-//    onCloseClick: () -> Unit = {},
-//    onBackClick: () -> Unit = {},
-//    onImageClick: () -> Unit = {},
-//    onFavoriteClick: () -> Unit = {},
-//    onMenuClick: () -> Unit = {},
-//    onDelete: () -> Unit = {},
-//) {
-//    val isCollapsed = state == TopBarState.COLLAPSED
-//
-//    val barWidth by animateDpAsState(
-//        targetValue = if (isCollapsed) 172.dp else 360.dp,
-//        animationSpec = tween(durationMillis = 500),
-//        label = "Bar Width Animation"
-//    )
-//
-//    val profileAlpha by animateFloatAsState(
-//        targetValue = if (isCollapsed) 1f else 0f,
-//        animationSpec = tween(durationMillis = 500),
-//        label = "Profile Alpha Animation"
-//    )
-//
-//    Row(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(16.dp),
-//        horizontalArrangement = Arrangement.SpaceBetween,
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        if (state == TopBarState.ENTRY_NAV) {
-//            Box(
-//                modifier = Modifier
-//                    .width(barWidth)
-//                    .height(40.dp)
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(Black)
-//                    .padding(horizontal = 16.dp),
-//                contentAlignment = Alignment.CenterStart
-//            ) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    horizontalArrangement = Arrangement.SpaceBetween
-//                ) {
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.ic_back),
-//                        contentDescription = "Back",
-//                        tint = Blue100,
-//                        modifier = Modifier.clickable { onBackClick() }
-//                    )
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_share),
-//                            contentDescription = "Share",
-//                            tint = Blue100,
-//                            modifier = Modifier.clickable { onImageClick() }
-//                        )
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_star),
-//                            contentDescription = "Favorite",
-//                            tint = Blue100,
-//                            modifier = Modifier.clickable { onFavoriteClick() }
-//                        )
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_more),
-//                            contentDescription = "More",
-//                            tint = Blue100,
-//                            modifier = Modifier.clickable { onMenuClick() }
-//                        )
-//                    }
-//                }
-//            }
-//        } else if (state == TopBarState.EDIT_ENTRY) {
-//            val date = remember {
-//                val today = LocalDate.now()
-//                val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
-//                today.format(formatter)
-//            }
-//            Box(
-//                modifier = Modifier
-//                    .width(barWidth)
-//                    .height(40.dp)
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(Black)
-//                    .padding(horizontal = 16.dp),
-//                contentAlignment = Alignment.CenterStart
-//            ) {
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    horizontalArrangement = Arrangement.SpaceBetween
-//                ) {
-//                    Icon(
-//                        painter = painterResource(id = R.drawable.ic_back),
-//                        contentDescription = "Back",
-//                        tint = Blue100,
-//                        modifier = Modifier.clickable { onBackClick() }
-//                    )
-//                    Text(text = date, color = Blue100, fontSize = 14.sp)
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.delete),
-//                            contentDescription = "More",
-//                            tint = Blue100,
-//                            modifier = Modifier.clickable { onDelete() }
-//                        )
-//                    }
-//                }
-//            }
-//
-//        }
-//        else {
-//            Box(
-//                modifier = Modifier
-//                    .width(barWidth)
-//                    .height(40.dp)
-//                    .clip(RoundedCornerShape(20.dp))
-//                    .background(Black),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                when (state) {
-//                    TopBarState.EXPANDED -> {
-//                        val date = remember {
-//                            val today = LocalDate.now()
-//                            val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
-//                            today.format(formatter)
-//                        }
-//                        Text(text = date, color = Blue100, fontSize = 14.sp)
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.close),
-//                            contentDescription = "Close",
-//                            tint = Blue100,
-//                            modifier = Modifier
-//                                .align(Alignment.CenterStart)
-//                                .padding(start = 12.dp)
-//                                .clickable { onCloseClick() }
-//                        )
-//                    }
-//
-//
-//
-//                    TopBarState.COLLAPSED -> {
-//                        Text(
-//                            text = "U-Journal",
-//                            style = MaterialTheme.typography.titleMedium,
-//                            color = Bg100
-//                        )
-//                    }
-//
-//                    else -> {}
-//                }
-//            }
-//
-//            Image(
-//                painter = painterResource(id = R.drawable.profile_placeholder),
-//                contentDescription = "User Profile",
-//                modifier = Modifier
-//                    .size(40.dp)
-//                    .clip(CircleShape)
-//                    .alpha(profileAlpha),
-//                contentScale = ContentScale.Crop
-//            )
-//        }
-//    }
-//}
-//
-//
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, name = "Collapsed State")
-//@Composable
-//fun TopBarCollapsedPreview() {
-//    Surface {
-//        TopBar(state = TopBarState.COLLAPSED, onCloseClick = {})
-//    }
-//}

@@ -1,6 +1,5 @@
 package com.smd.u_journal.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,12 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.smd.u_journal.model.JournalEntry
 import com.smd.u_journal.util.Entries
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -62,7 +58,6 @@ fun JournalEntryCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Kiri: Teks
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -94,7 +89,6 @@ fun JournalEntryCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Kanan: Gambar
             entry.imageUrl?.let { url ->
                 AsyncImage(
                     model = url,

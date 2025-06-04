@@ -25,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.smd.u_journal.navigation.Screen
 
 @Composable
 fun RegisterForm(
@@ -84,7 +83,7 @@ fun RegisterForm(
                 ),
             value = email,
             onValueChange = { email = it },
-            label = { Text("E-mail") },
+            label = { Text("Email") },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
