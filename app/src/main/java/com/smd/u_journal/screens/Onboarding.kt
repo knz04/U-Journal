@@ -1,26 +1,11 @@
 package com.smd.u_journal.screens
 
-import android.content.res.Configuration
-import android.content.Context
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.Build
-import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,65 +13,36 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.R
-import com.smd.u_journal.ui.theme.Black
-import com.smd.u_journal.navigation.Screen
-import com.smd.u_journal.ui.theme.UJournalTheme
-import com.smd.u_journal.viewmodel.AuthState
-import com.smd.u_journal.viewmodel.AuthViewModel
+import com.smd.u_journal.auth.AuthViewModel
+import com.smd.u_journal.auth.LoginForm
+import com.smd.u_journal.auth.RegisterForm
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OnboardingScreen(
-    navController: NavHostController = rememberNavController(),
-    authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess: () -> Unit = {}
-) {
+fun OnboardingScreen(navController: NavHostController) {
     var isLogin by remember { mutableStateOf(true) }
-    val authState by authViewModel.authState.collectAsState()
-    val context = LocalContext.current
-
-    // React to auth events
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> onLoginSuccess()
-            is AuthState.Error -> Toast.makeText(
-                context,
-                (authState as AuthState.Error).message,
-                Toast.LENGTH_LONG
-            ).show()
-            else -> {}
-        }
-    }
+    val portraitBackground = painterResource(R.drawable.background)
+    val authViewModel: AuthViewModel = viewModel()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .paint(
-                painter = painterResource(R.drawable.background),
-                contentScale = ContentScale.FillBounds
-            )
-    ) {
+            .paint(painter = portraitBackground, contentScale = ContentScale.FillBounds)
+    ){
         Spacer(modifier = Modifier.height(200.dp))
-        Text(
-            text = "U-Journal",
-            fontSize = 28.sp,
-            color = Color.White,
-            fontWeight = FontWeight(weight = 600),
-            modifier = Modifier.padding(bottom = 0.dp, start = 24.dp)
-        )
+            Text(
+                text = "U-Journal",
+                fontSize = 28.sp,
+                color = Color.White,
+                fontWeight = FontWeight(weight = 600),
+                modifier = Modifier.padding(bottom = 0.dp, start = 24.dp)
+            )
         Text(
             text = "Sign in-up to share your day with us",
             fontSize = 14.sp,
@@ -104,35 +60,35 @@ fun OnboardingScreen(
                 .padding(top = 26.dp)
                 .padding(horizontal = 20.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(Color(0xFFE2E8F0))
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp),
+            Row(modifier = Modifier
+                .clip(RoundedCornerShape(22.dp))
+                .background(Color(0xFFE2E8F0))
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Button(
-                    modifier = Modifier
-                        .width(190.dp)
-                        .background(Color(0xFFE2E8F0)),
+                Button(modifier = Modifier
+                    .width(190.dp)
+                    .background(Color(0xFFE2E8F0)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isLogin) Color(0xFF1F1F1F) else Color(0xFFE2E8F0)
                     ),
-                    onClick = { isLogin = true }
-                ) {
+                    onClick = {
+                        isLogin = true
+                    }) {
                     Text("Login", color = if (isLogin) Color(0xFF40C2FF) else Color(0xFF64748B))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    modifier = Modifier
-                        .width(190.dp)
-                        .background(Color(0xFFE2E8F0)),
+                Button(modifier = Modifier
+                    .width(190.dp)
+                    .background(Color(0xFFE2E8F0)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (!isLogin) Color(0xFF1F1F1F) else Color(0xFFE2E8F0)
                     ),
-                    onClick = { isLogin = false }
-                ) {
+                    onClick = {
+                        isLogin = false
+                        Modifier.background(Color(0xFF1F1F1F))
+                    }) {
                     Text("Register", color = if (!isLogin) Color(0xFF40C2FF) else Color(0xFF64748B))
                 }
             }
@@ -140,341 +96,16 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLogin) {
-                AuthLogin(authViewModel)
+                LoginForm(
+                    navController = navController,
+                    viewModel = authViewModel
+                )
             } else {
-                AuthRegister(authViewModel)
-            }
-        }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun AuthLogin(authViewModel: AuthViewModel) {
-    var rememberMe by remember { mutableStateOf(false) }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var failedAttempts by remember { mutableStateOf(0) }
-    val authState by authViewModel.authState.collectAsState()
-    val context = LocalContext.current
-    val vibrator = remember { context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
-    val isLoading = authState is AuthState.Loading
-
-    Column(Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE2E8F0),
-                    shape = RoundedCornerShape(32.dp)
-                ),
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedLabelColor = Color(0xFF64748B),
-                focusedLabelColor = Color(0xFF40C2FF),
-                cursorColor = Color(0xFF1F1F1F)
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE2E8F0),
-                    shape = RoundedCornerShape(32.dp)
-                ),
-            value = password,
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation(),
-            label = { Text("Password") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedLabelColor = Color(0xFF64748B),
-                focusedLabelColor = Color(0xFF40C2FF),
-                cursorColor = Color(0xFF1F1F1F)
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = rememberMe,
-                    onCheckedChange = { rememberMe = it },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0xFF40C2FF),
-                        uncheckedColor = Color(0xFF64748B)
-                    )
-                )
-                Text(
-                    text = "Remember me",
-                    color = Color(0xFF64748B),
-                    fontWeight = FontWeight(weight = 600)
+                RegisterForm(
+                    navController = navController,
+                    viewModel = authViewModel
                 )
             }
-            ForgotPasswordText()
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            onClick = {
-                authViewModel.login(email.trim(), password)
-            },
-            colors = ButtonDefaults.buttonColors(Color(0xFF1F1F1F))
-        ) {
-            if (isLoading) CircularProgressIndicator(
-                modifier = Modifier.size(24.dp), strokeWidth = 2.dp
-            ) else Text("Login")
-        }
-
-        Spacer(modifier = Modifier.height(36.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color(0xFFE2E8F0))
-            )
-            Text(
-                text = "Or login with",
-                color = Color(0xFF64748B),
-                fontWeight = FontWeight(weight = 600),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color(0xFFE2E8F0))
-            )
-        }
-        Spacer(modifier = Modifier.height(36.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SocialLoginButton(
-                painterId = R.drawable.google,
-                text = "Google"
-            )
-            SocialLoginButton(
-                painterId = R.drawable.apple,
-                text = "Apple"
-            )
-        }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun AuthRegister(authViewModel: AuthViewModel) {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val authState by authViewModel.authState.collectAsState()
-    val isLoading = authState is AuthState.Loading
-
-    Column(Modifier.fillMaxWidth()) {
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE2E8F0),
-                    shape = RoundedCornerShape(32.dp)
-                ),
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = { Text("Full Name") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedLabelColor = Color(0xFF64748B),
-                focusedLabelColor = Color(0xFF40C2FF),
-                cursorColor = Color(0xFF1F1F1F)
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE2E8F0),
-                    shape = RoundedCornerShape(32.dp)
-                ),
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedLabelColor = Color(0xFF64748B),
-                focusedLabelColor = Color(0xFF40C2FF),
-                cursorColor = Color(0xFF1F1F1F)
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFFE2E8F0),
-                    shape = RoundedCornerShape(32.dp)
-                ),
-            value = password,
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation(),
-            label = { Text("Password") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedTextColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedLabelColor = Color(0xFF64748B),
-                focusedLabelColor = Color(0xFF40C2FF),
-                cursorColor = Color(0xFF1F1F1F)
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            onClick = { authViewModel.signup(email.trim(), password) },
-            colors = ButtonDefaults.buttonColors(Color(0xFF1F1F1F))
-        ) {
-            if (isLoading) CircularProgressIndicator(
-                modifier = Modifier.size(24.dp), strokeWidth = 2.dp
-            ) else Text("Register")
-        }
-    }
-}
-
-@Composable
-fun SocialLoginButton(
-    painterId: Int,
-    text: String
-) {
-    Button(
-        modifier = Modifier
-            .height(48.dp)
-            .width(160.dp)
-            .border(
-                width = 1.dp,
-                color = Color(0xFFE2E8F0),
-                shape = RoundedCornerShape(32.dp)
-            ),
-        onClick = { /* TODO social auth */ },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color(0xFF1F1F1F)
-        )
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = painterId),
-                contentDescription = text,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text, color = Color(0xFF64748B))
-        }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun ForgotPasswordText() {
-    val context = LocalContext.current
-    var tapCount by remember { mutableStateOf(0) }
-    var lastTapTime by remember { mutableStateOf(0L) }
-    val vibrator = remember {
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
-
-    Text(
-        text = "Forgot Password?",
-        modifier = Modifier.clickable {
-            val now = System.currentTimeMillis()
-
-            if (now - lastTapTime > 5000) tapCount = 0
-
-            when {
-                now - lastTapTime < 300 -> {
-                    Toast.makeText(
-                        context,
-                        "🚨 CALM DOWN HUMAN 🚨",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(100, 200, 100), -1))
-                }
-                else -> {
-                    tapCount++
-                    lastTapTime = now
-
-                    val (message, duration) = when (tapCount) {
-                        1 -> "Rub your chin and think hard" to Toast.LENGTH_SHORT
-                        2 -> "Try to actually remember it" to Toast.LENGTH_SHORT
-                        3 -> "Pro tip: Write it down next time" to Toast.LENGTH_LONG
-                        else -> "⚰️ This button has died from overuse" to Toast.LENGTH_LONG
-                    }
-
-                    if (tapCount >= 3) {
-                        vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(50, 100, 50), -1))
-                    }
-
-                    Toast.makeText(context, message, duration).show()
-                }
-            }
-        },
-        color = Color(0xFF40C2FF),
-        fontWeight = FontWeight.Bold
-    )
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-@Preview(
-    name = "Portrait Preview",
-    showBackground = true,
-    showSystemUi = true
-)
-fun AuthScreenPreview() {
-    UJournalTheme {
-        OnboardingScreen(onLoginSuccess = {})
     }
 }
