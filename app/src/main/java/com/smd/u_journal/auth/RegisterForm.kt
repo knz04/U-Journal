@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
@@ -106,6 +107,7 @@ fun RegisterForm(
                 ),
             value = password,
             onValueChange = { password = it },
+            visualTransformation = PasswordVisualTransformation(),
             label = { Text("Password") },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,

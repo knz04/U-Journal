@@ -49,9 +49,8 @@ fun HomeScreen(
     navController: NavController,
     onJournalEntryClick: (String) -> Unit
 ) {
-    val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
-    val userName by remember { mutableStateOf("User") }
     val viewModel: EntryViewModel = viewModel()
+    val userName by viewModel.userName.collectAsState()
     val entries by viewModel.entries.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
 
@@ -226,14 +225,29 @@ class EntryViewModel : ViewModel() {
     val entries: StateFlow<List<Entries>> = _entries
     val error: StateFlow<String?> = _error
 
+    private val _userName = MutableStateFlow("User")
+    val userName: StateFlow<String> = _userName
+
+    private fun loadUserName() {
+        viewModelScope.launch {
+            try {
+                _userName.value = EntryRepository.getCurrentUserName()
+            } catch (e: Exception) {
+                _userName.value = "User" // fallback
+            }
+        }
+    }
+
     fun loadEntries() {
         viewModelScope.launch {
             try {
                 _entries.value = repository.getEntries()
                 _error.value = null
+                loadUserName() // ← fetch user name
             } catch (e: Exception) {
                 _error.value = "Error loading entries: ${e.localizedMessage}"
             }
         }
     }
+
 }

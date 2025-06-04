@@ -15,6 +15,13 @@ object EntryRepository {
     private val auth = FirebaseAuth.getInstance()
     private val entriesCollection = firestore.collection("entries")
 
+    suspend fun getCurrentUserName(): String {
+        val userId = auth.currentUser?.uid ?: throw Exception("User not authenticated")
+        val doc = firestore.collection("users").document(userId).get().await()
+        return doc.getString("fullName") ?: "User"
+    }
+
+
     suspend fun addEntry(
         title: String,
         content: String,
