@@ -1,6 +1,5 @@
 package com.smd.u_journal.screens
 
-import android.content.res.Configuration
 import android.content.Context
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -34,15 +33,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.R
-import com.smd.u_journal.ui.theme.Black
-import com.smd.u_journal.navigation.Screen
 import com.smd.u_journal.ui.theme.UJournalTheme
 import com.smd.u_journal.viewmodel.AuthState
 import com.smd.u_journal.viewmodel.AuthViewModel
@@ -154,10 +150,8 @@ fun AuthLogin(authViewModel: AuthViewModel) {
     var rememberMe by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var failedAttempts by remember { mutableStateOf(0) }
     val authState by authViewModel.authState.collectAsState()
     val context = LocalContext.current
-    val vibrator = remember { context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
     val isLoading = authState is AuthState.Loading
 
     Column(Modifier.fillMaxWidth()) {
@@ -245,45 +239,6 @@ fun AuthLogin(authViewModel: AuthViewModel) {
             if (isLoading) CircularProgressIndicator(
                 modifier = Modifier.size(24.dp), strokeWidth = 2.dp
             ) else Text("Login")
-        }
-
-        Spacer(modifier = Modifier.height(36.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color(0xFFE2E8F0))
-            )
-            Text(
-                text = "Or login with",
-                color = Color(0xFF64748B),
-                fontWeight = FontWeight(weight = 600),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
-                    .background(Color(0xFFE2E8F0))
-            )
-        }
-        Spacer(modifier = Modifier.height(36.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SocialLoginButton(
-                painterId = R.drawable.google,
-                text = "Google"
-            )
-            SocialLoginButton(
-                painterId = R.drawable.apple,
-                text = "Apple"
-            )
         }
     }
 }
