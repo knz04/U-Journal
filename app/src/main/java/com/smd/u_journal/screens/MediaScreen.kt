@@ -1,39 +1,45 @@
 package com.smd.u_journal.screens
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.smd.u_journal.model.JournalEntry
-import com.smd.u_journal.model.dummyEntries
+import coil.compose.AsyncImage
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Blue100
 import com.smd.u_journal.ui.theme.Blue200
 import com.smd.u_journal.ui.theme.Blue300
+import com.smd.u_journal.util.Entries
+import com.smd.u_journal.util.EntryRepository
+import kotlinx.coroutines.flow.flow
 
 @Composable
-fun MediaScreen(navController: NavController) {
+fun MediaScreen(
+    navController: NavController,
+    onJournalEntryClick: (String) -> Unit
+) {
+    val viewModel: MediaViewModel = viewModel()
+    val entries by viewModel.getEntriesWithImages().collectAsState(initial = emptyList())
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -107,8 +113,12 @@ fun MediaScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 userScrollEnabled = false
             ) {
-                items(dummyEntries) { entry ->
-                    MediaCard(entry = entry, navController = navController)
+                items(entries) { entry ->
+                    MediaCard(
+                        entry = entry,
+                        navController = navController,
+                        onJournalEntryClick = onJournalEntryClick
+                    )
                 }
             }
         }
@@ -116,20 +126,25 @@ fun MediaScreen(navController: NavController) {
 }
 
 @Composable
-fun MediaCard(entry: JournalEntry, navController: NavController) {
+fun MediaCard(
+    entry: Entries,
+    navController: NavController,
+    onJournalEntryClick: (String) -> Unit
+) {
     Card(
         modifier = Modifier
             .aspectRatio(1f)
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .clickable {
-                navController.navigate("entry_nav/${entry.date}")
+                onJournalEntryClick(entry.id)
             },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = entry.imageRes),
+            // Using Coil for image loading
+            AsyncImage(
+                model = entry.imageUrl,
                 contentDescription = entry.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -138,11 +153,15 @@ fun MediaCard(entry: JournalEntry, navController: NavController) {
     }
 }
 
+class MediaViewModel : ViewModel() {
+    private val repository = EntryRepository
 
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun MediaScreenPreview() {
-//    MediaScreen()
-//}
+    fun getEntriesWithImages() = flow {
+        try {
+            val entries = repository.getEntriesWithImages()
+            emit(entries)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+}

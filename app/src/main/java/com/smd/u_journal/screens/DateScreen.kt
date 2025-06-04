@@ -1,6 +1,7 @@
 package com.smd.u_journal.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,23 +11,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
-import com.smd.u_journal.model.JournalEntry
-import com.smd.u_journal.model.dummyEntries
+import androidx.compose.ui.window.Dialog
+import com.smd.u_journal.util.Entries
+import com.smd.u_journal.util.EntryRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun DateScreen(
-    navController: NavController
+    navController: NavController,
+    onJournalEntryClick: (String) -> Unit
 ) {
     val todayCalendar = remember { Calendar.getInstance() }
     val currentMonth = todayCalendar.get(Calendar.MONTH)
@@ -49,7 +49,15 @@ fun DateScreen(
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            listState.animateScrollToItem(2) // Center to current month
+            listState.animateScrollToItem(2) // scroll to current month
+        }
+    }
+
+    val entriesState by produceState<List<Entries>>(initialValue = emptyList()) {
+        value = try {
+            EntryRepository.getEntries()
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 
@@ -64,9 +72,9 @@ fun DateScreen(
             MonthView(
                 month = month,
                 year = year,
-                journalEntries = dummyEntries,
+                entries = entriesState,
                 onEntryClick = { entry ->
-                    navController.navigate("entry_nav/${entry.date}")
+                    onJournalEntryClick(entry.id)
                 }
             )
             Spacer(modifier = Modifier.height(32.dp))
@@ -74,31 +82,51 @@ fun DateScreen(
     }
 }
 
+private fun getDaysInMonth(month: Int, year: Int): Int {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.YEAR, year)
+    calendar.set(Calendar.MONTH, month)
+    return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+}
+
+private fun getFirstDayOfMonth(month: Int, year: Int): Int {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.YEAR, year)
+    calendar.set(Calendar.MONTH, month)
+    calendar.set(Calendar.DAY_OF_MONTH, 1)
+    var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+    // Adjust so Monday = 1, Sunday = 7
+    return if (dayOfWeek == Calendar.SUNDAY) 7 else dayOfWeek - 1
+}
+
 
 @Composable
 private fun MonthView(
     month: Int,
     year: Int,
-    journalEntries: List<JournalEntry>,
-    onEntryClick: (JournalEntry) -> Unit
+    entries: List<Entries>,
+    onEntryClick: (Entries) -> Unit
 ) {
     val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     val daysInMonth = getDaysInMonth(month, year)
     val firstDayOfMonth = getFirstDayOfMonth(month, year)
 
-    val entriesMap = journalEntries
+    var selectedEntries by remember { mutableStateOf<List<Entries>?>(null) }
+
+    val entriesMap = entries
         .filter { entry ->
-            val dateFormat = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
-            val date = dateFormat.parse(entry.date)
-            val calendar = Calendar.getInstance().apply { time = date!! }
-            calendar.get(Calendar.MONTH) == month && calendar.get(Calendar.YEAR) == year
+            entry.createdAt?.toDate()?.let { date ->
+                val calendar = Calendar.getInstance().apply { time = date }
+                calendar.get(Calendar.MONTH) == month && calendar.get(Calendar.YEAR) == year
+            } == true
         }
-        .associateBy { entry ->
-            val dateFormat = SimpleDateFormat("MMMM d, yyyy", Locale.getDefault())
-            val date = dateFormat.parse(entry.date)
-            val calendar = Calendar.getInstance().apply { time = date!! }
-            calendar.get(Calendar.DAY_OF_MONTH)
+        .groupBy { entry ->
+            entry.createdAt?.toDate()?.let { date ->
+                val calendar = Calendar.getInstance().apply { time = date }
+                calendar.get(Calendar.DAY_OF_MONTH)
+            }
         }
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -141,14 +169,12 @@ private fun MonthView(
                     for (j in 1..7) {
                         val cellIndex = i * 7 + j
                         if (cellIndex >= firstDayOfMonth && dayCounter <= daysInMonth) {
-                            if (entriesMap.containsKey(dayCounter)) {
-                                val entry = entriesMap[dayCounter]!!
+                            val dayEntries = entriesMap[dayCounter]
+                            if (!dayEntries.isNullOrEmpty()) {
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
-                                        .clickable {
-                                            onEntryClick(entry)
-                                        },
+                                        .clickable { selectedEntries = dayEntries },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -181,32 +207,36 @@ private fun MonthView(
             }
         }
     }
-}
 
-private fun getDaysInMonth(month: Int, year: Int): Int {
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.YEAR, year)
-    calendar.set(Calendar.MONTH, month)
-    return calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-}
-
-private fun getFirstDayOfMonth(month: Int, year: Int): Int {
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.YEAR, year)
-    calendar.set(Calendar.MONTH, month)
-    calendar.set(Calendar.DAY_OF_MONTH, 1)
-    var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-    if (dayOfWeek == Calendar.SUNDAY) {
-        dayOfWeek = 7
-    } else {
-        dayOfWeek -= 1
+    selectedEntries?.let { entriesForDay ->
+        Dialog(onDismissRequest = { selectedEntries = null }) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .background(Color.White.copy(alpha = 0.95f), shape = MaterialTheme.shapes.medium)
+                    .padding(16.dp)
+            ) {
+                Text("Select Entry", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                entriesForDay.forEach { entry ->
+                    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                        Text(text = entry.title, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Button(
+                            onClick = {
+                                onEntryClick(entry)
+                                selectedEntries = null
+                            },
+                            modifier = Modifier.align(Alignment.End),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
+                            Text("View", color = Color.White)
+                        }
+                    }
+                }
+            }
+        }
     }
-    return dayOfWeek
-}
 
-@Preview(showBackground = true)
-@Composable
-fun DateScreenPreview() {
-    val navController = rememberNavController()
-    DateScreen(navController = navController)
 }

@@ -16,8 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.smd.u_journal.ui.theme.Bg100
 import com.smd.u_journal.ui.theme.Blue100
@@ -25,17 +23,49 @@ import com.smd.u_journal.ui.theme.Blue200
 import com.smd.u_journal.ui.theme.Blue300
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.foundation.Image
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.smd.u_journal.R
-import com.smd.u_journal.model.dummyEntries
 import com.smd.u_journal.ui.components.JournalEntryCard
+import com.smd.u_journal.util.Entries
+import com.smd.u_journal.util.EntryRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    onJournalEntryClick: (String) -> Unit
+) {
     val journalDate = SimpleDateFormat("EEE, dd MMMM yyyy", Locale.getDefault()).format(Date())
+    val userName by remember { mutableStateOf("User") }
+    val viewModel: EntryViewModel = viewModel()
+    val entries by viewModel.entries.collectAsState()
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadEntries()
+    }
+
+    val filteredEntries = remember(searchQuery, entries) {
+        if (searchQuery.isBlank()) entries
+        else entries.filter {
+            it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.content.contains(searchQuery, ignoreCase = true)
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -54,7 +84,7 @@ fun HomeScreen(navController: NavController) {
                     fontWeight = FontWeight.Light
                 )
                 Text(
-                    text = "Welcome, Mr Black!",
+                    text = "Welcome, $userName!",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -64,8 +94,8 @@ fun HomeScreen(navController: NavController) {
         // Search Bar
         item {
             TextField(
-                value = "",
-                onValueChange = {},
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
                 placeholder = {
                     Text("Search", color = Color(0xFF747474), fontWeight = FontWeight.Normal, style = MaterialTheme.typography.bodySmall)
                 },
@@ -80,6 +110,10 @@ fun HomeScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(45.dp)
                     .clip(RoundedCornerShape(24.dp)),
+                textStyle = MaterialTheme.typography.bodySmall.copy(
+                    color = Color.White,
+                    fontWeight = FontWeight.Normal
+                ),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = Color.Black,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -171,32 +205,35 @@ fun HomeScreen(navController: NavController) {
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = journalDate,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
 
-        // List of Journal Cards
-        items(dummyEntries) { entry ->
+        // Filtered List of Journal Cards
+        items(filteredEntries) { entry ->
             JournalEntryCard(
-                journalEntry = entry,
-                dateLabel = "Recently Opened",
-                onClick = {
-                    navController.navigate("entry_nav/${entry.date}")
-                }
+                entry = entry,
+                onClick = { onJournalEntryClick(entry.id) }
             )
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeScreen()
-//}
+class EntryViewModel : ViewModel() {
+    private val repository = EntryRepository
+    private val _entries = MutableStateFlow<List<Entries>>(emptyList())
+    private val _error = MutableStateFlow<String?>(null)
+
+    val entries: StateFlow<List<Entries>> = _entries
+    val error: StateFlow<String?> = _error
+
+    fun loadEntries() {
+        viewModelScope.launch {
+            try {
+                _entries.value = repository.getEntries()
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = "Error loading entries: ${e.localizedMessage}"
+            }
+        }
+    }
+}

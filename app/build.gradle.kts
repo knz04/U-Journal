@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+
+    id("kotlin-parcelize")
 }
 
 android {
@@ -56,6 +58,10 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,4 +83,8 @@ dependencies {
 //
 //// If you use Compose integration (optional, experimental)
 //    implementation(libs.androidx.camera.viewfinder)
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }
