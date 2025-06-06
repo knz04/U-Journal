@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.smd.u_journal.navigation.AppNavHost
 import com.smd.u_journal.ui.theme.UJournalTheme
@@ -19,11 +20,23 @@ import com.smd.u_journal.ui.theme.UJournalTheme
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+
+        var keepSplash = true
+        splashScreen.setKeepOnScreenCondition { keepSplash }
+
         super.onCreate(savedInstanceState)
+
         setContent {
             UJournalTheme {
                 RequestPermissions()
                 val navController = rememberNavController()
+
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(1000)
+                    keepSplash = false
+                }
+
                 Surface(color = MaterialTheme.colorScheme.background) {
                     AppNavHost(navController)
                 }
@@ -31,6 +44,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 
 @Composable
